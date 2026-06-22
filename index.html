@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wireless Networks - Course Notes</title>
+    <meta name="description" content="Lecture notes and resources for the 3-2 Wireless Networks course.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            /* Slate 900 */
+            --bg-gradient: radial-gradient(circle at top right, #1e293b, #0f172a);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-glow: rgba(56, 189, 248, 0.5);
+            /* Sky 400 glow */
+            --accent-color: #38bdf8;
+            --hover-accent: #0ea5e9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-gradient);
+            background-color: var(--bg-color);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Abstract Background Elements */
+        .bg-shape {
+            position: absolute;
+            filter: blur(100px);
+            z-index: 0;
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: float 20s infinite alternate ease-in-out;
+            pointer-events: none;
+        }
+
+        .shape-1 {
+            width: 400px;
+            height: 400px;
+            background: #4f46e5;
+            /* Indigo */
+            top: -100px;
+            left: -100px;
+        }
+
+        .shape-2 {
+            width: 500px;
+            height: 500px;
+            background: #0ea5e9;
+            /* Sky blue */
+            bottom: -200px;
+            right: -100px;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(50px, 30px) scale(1.1);
+            }
+
+            100% {
+                transform: translate(-30px, 50px) scale(0.9);
+            }
+        }
+
+        main {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1100px;
+            padding: 4rem 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fade-in-down 1s ease-out;
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #f8fafc, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.05em;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        .lecture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            width: 100%;
+        }
+
+        .lecture-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 2rem;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: fade-in-up 0.8s ease-out forwards;
+        }
+
+        .lecture-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(56, 189, 248, 0.3);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 25px -5px var(--accent-glow);
+        }
+
+        .lecture-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right,
+                    transparent,
+                    rgba(255, 255, 255, 0.05),
+                    transparent);
+            transform: skewX(-20deg);
+            transition: left 0.7s ease;
+        }
+
+        .lecture-card:hover::before {
+            left: 200%;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .lecture-number {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            background: rgba(56, 189, 248, 0.1);
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        .lecture-date {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .lecture-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            line-height: 1.3;
+            color: var(--text-main);
+        }
+
+        .lecture-desc {
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 300;
+            flex-grow: 1;
+            line-height: 1.6;
+        }
+
+        .card-footer {
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            color: var(--accent-color);
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .lecture-card:hover .card-footer {
+            color: var(--hover-accent);
+        }
+
+        .card-footer svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-left: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .lecture-card:hover .card-footer svg {
+            transform: translateX(4px);
+        }
+
+        /* Empty State / Add New Placeholder */
+        .add-new-card {
+            border: 1px dashed rgba(148, 163, 184, 0.4);
+            background: transparent;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+
+        .add-new-card:hover {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: var(--text-muted);
+            box-shadow: none;
+            transform: translateY(-4px);
+        }
+
+        .add-icon {
+            width: 3rem;
+            height: 3rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .add-new-card:hover .add-icon {
+            color: var(--text-main);
+            transform: scale(1.1);
+        }
+
+        @keyframes fade-in-down {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 3rem;
+            }
+
+            main {
+                padding: 3rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2.25rem;
+            }
+
+            main {
+                padding: 2rem 1rem;
+            }
+
+            .lecture-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background abstract shapes -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+
+    <main>
+        <header>
+            <h1>Notes & Resources Repository</h1>
+        </header>
+
+        <div class="lecture-grid" id="lecture-container">
+            <!-- Cards will be populated by JavaScript -->
+        </div>
+    </main>
+
+    <script>
+        // Array of lectures to easily manage content. 
+        // Just add a new object to this list whenever you create a new lecture note.
+        const lectures = [
+            {
+                number: 'Lecture 1',
+                title: 'Introduction to Wireless Networks',
+                date: '6/23/2026',
+                description: 'Fundamentals of wireless communication, cellular network concepts, and Doppler shift principles.',
+                url: 'WirelessNetworksLecture1Notes.html'
+            }
+            // Add future lectures here like this:
+            // ,{
+            //     number: 'Lecture 2',
+            //     title: 'Signal Propagation & Antennas',
+            //     date: 'Upcoming',
+            //     description: 'Detailed analysis of path loss, fading mechanisms, and antenna design basics.',
+            //     url: 'WirelessNetworksLecture2Notes.html'
+            // }
+        ];
+
+        const container = document.getElementById('lecture-container');
+
+        // Function to create a lecture card HTML string
+        function createCardHTML(lecture) {
+            return `
+                <a href="${lecture.url}" class="lecture-card">
+                    <div class="card-header">
+                        <span class="lecture-number">${lecture.number}</span>
+                        <span class="lecture-date">${lecture.date}</span>
+                    </div>
+                    <h2 class="lecture-title">${lecture.title}</h2>
+                    <p class="lecture-desc">${lecture.description}</p>
+                    <div class="card-footer">
+                        View Notes
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </div>
+                </a>
+            `;
+        }
+
+        // The "Future Lectures" placeholder card
+        const futureCardHTML = `
+            <div class="lecture-card add-new-card" onclick="alert('To add new notes, just create the HTML file and update the lectures array in the index.html file!')">
+                <svg class="add-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                <h2 class="lecture-title" style="font-size: 1.25rem;">More to come...</h2>
+                <p class="lecture-desc" style="font-size: 0.875rem; margin-top: 0.5rem;">Future lectures will be listed here. Check the HTML source to add them.</p>
+            </div>
+        `;
+
+        // Render all cards
+        container.innerHTML = lectures.map(createCardHTML).join('') + futureCardHTML;
+
+        // Apply dynamic animation delays so cards cascade nicely on load
+        document.querySelectorAll('.lecture-card').forEach((card, index) => {
+            card.style.animationDelay = `${0.1 * (index + 1)}s`;
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,3624 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSE 4615 – Lecture 5: IEEE 802.11 WLANs | Ultimate Study Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap');
+
+        :root {
+            --bg-void: #050710;
+            --bg-deep: #080c1a;
+            --bg-surface: #0d1228;
+            --bg-card: rgba(255, 255, 255, 0.035);
+            --bg-card-hover: rgba(255, 255, 255, 0.06);
+            --border-subtle: rgba(255, 255, 255, 0.07);
+            --border-glow: rgba(99, 179, 237, 0.25);
+            --accent-primary: #63b3ed;
+            --accent-secondary: #76e4f7;
+            --accent-violet: #b794f4;
+            --accent-emerald: #4fd1c7;
+            --accent-amber: #f6ad55;
+            --accent-rose: #fc8181;
+            --accent-lime: #9ae6b4;
+            --accent-pink: #f687b3;
+            --text-bright: #f0f4ff;
+            --text-body: #a0aec0;
+            --text-muted: #4a5568;
+            --text-dim: #2d3748;
+            --sidebar-width: 292px;
+            --r-xl: 20px;
+            --r-lg: 14px;
+            --r-md: 10px;
+            --r-sm: 6px;
+            --shadow-deep: 0 20px 60px rgba(0, 0, 0, 0.6);
+            --shadow-glow-blue: 0 0 30px rgba(99, 179, 237, 0.1);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 15px;
+        }
+
+        body {
+            background: var(--bg-void);
+            color: var(--text-body);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.75;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 55% 35% at 10% 15%, rgba(99, 179, 237, 0.06) 0%, transparent 65%),
+                radial-gradient(ellipse 45% 45% at 90% 85%, rgba(183, 148, 244, 0.05) 0%, transparent 65%),
+                radial-gradient(ellipse 60% 25% at 60% 50%, rgba(79, 209, 199, 0.03) 0%, transparent 65%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ─── SIDEBAR ─── */
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: rgba(8, 10, 22, 0.88);
+            backdrop-filter: blur(28px) saturate(1.5);
+            -webkit-backdrop-filter: blur(28px) saturate(1.5);
+            border-right: 1px solid var(--border-subtle);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sb-head {
+            padding: 22px 18px 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            flex-shrink: 0;
+        }
+
+        .sb-course {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9.5px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--accent-secondary);
+            margin-bottom: 5px;
+        }
+
+        .sb-title {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-bright);
+            line-height: 1.4;
+        }
+
+        .sb-lec {
+            margin-top: 5px;
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .sb-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0 24px;
+        }
+
+        .sb-nav::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .sb-nav::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sb-nav::-webkit-scrollbar-thumb {
+            background: var(--text-dim);
+            border-radius: 2px;
+        }
+
+        .sb-group-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 8.5px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            padding: 18px 18px 5px;
+        }
+
+        .sb-link {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            padding: 8px 18px;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 12px;
+            line-height: 1.4;
+            transition: all 0.18s ease;
+            border-left: 2px solid transparent;
+        }
+
+        .sb-link:hover {
+            color: var(--text-bright);
+            background: rgba(99, 179, 237, 0.07);
+            border-left-color: var(--accent-primary);
+        }
+
+        .sb-link.active {
+            color: var(--accent-secondary);
+            background: rgba(118, 228, 247, 0.08);
+            border-left-color: var(--accent-secondary);
+            font-weight: 500;
+        }
+
+        .sb-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9.5px;
+            color: var(--text-dim);
+            margin-top: 2px;
+            min-width: 16px;
+            flex-shrink: 0;
+        }
+
+        /* ─── MAIN ─── */
+        #main {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            position: relative;
+            z-index: 1;
+            padding: 0 44px 100px 52px;
+            max-width: calc(100vw - var(--sidebar-width));
+        }
+
+        /* ─── HERO ─── */
+        .hero {
+            padding: 60px 0 44px;
+            border-bottom: 1px solid var(--border-subtle);
+            margin-bottom: 64px;
+        }
+
+        .hero-eyebrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent-secondary);
+            margin-bottom: 14px;
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(30px, 3.5vw, 48px);
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 14px;
+            background: linear-gradient(135deg, #f0f4ff 0%, #63b3ed 50%, #76e4f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-sub {
+            color: var(--text-muted);
+            font-size: 14px;
+            max-width: 600px;
+            line-height: 1.7;
+        }
+
+        .hero-badges {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+            margin-top: 22px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 500;
+            border: 1px solid;
+        }
+
+        .badge-blue {
+            background: rgba(99, 179, 237, 0.1);
+            border-color: rgba(99, 179, 237, 0.3);
+            color: var(--accent-primary);
+        }
+
+        .badge-cyan {
+            background: rgba(118, 228, 247, 0.08);
+            border-color: rgba(118, 228, 247, 0.3);
+            color: var(--accent-secondary);
+        }
+
+        .badge-violet {
+            background: rgba(183, 148, 244, 0.08);
+            border-color: rgba(183, 148, 244, 0.3);
+            color: var(--accent-violet);
+        }
+
+        .badge-emerald {
+            background: rgba(79, 209, 199, 0.08);
+            border-color: rgba(79, 209, 199, 0.3);
+            color: var(--accent-emerald);
+        }
+
+        .badge-amber {
+            background: rgba(246, 173, 85, 0.08);
+            border-color: rgba(246, 173, 85, 0.3);
+            color: var(--accent-amber);
+        }
+
+        .badge-rose {
+            background: rgba(252, 129, 129, 0.08);
+            border-color: rgba(252, 129, 129, 0.3);
+            color: var(--accent-rose);
+        }
+
+        .badge-lime {
+            background: rgba(154, 230, 180, 0.08);
+            border-color: rgba(154, 230, 180, 0.3);
+            color: var(--accent-lime);
+        }
+
+        /* ─── SECTION ─── */
+        .sec {
+            margin-bottom: 80px;
+            scroll-margin-top: 36px;
+        }
+
+        .sec-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 30px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            color: var(--text-dim);
+            margin-top: 8px;
+            min-width: 30px;
+            flex-shrink: 0;
+        }
+
+        .sec-title-wrap h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text-bright);
+            line-height: 1.25;
+        }
+
+        .sec-subtitle {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        /* ─── CARD ─── */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--r-lg);
+            padding: 26px 30px;
+            margin-bottom: 18px;
+            backdrop-filter: blur(8px);
+            transition: border-color 0.22s, background 0.22s;
+        }
+
+        .card:hover {
+            border-color: var(--border-glow);
+            background: var(--bg-card-hover);
+        }
+
+        .card h3 {
+            font-size: 15.5px;
+            font-weight: 600;
+            color: var(--accent-secondary);
+            margin-bottom: 13px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .card h4 {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-bright);
+            margin: 18px 0 9px;
+        }
+
+        .card p {
+            color: var(--text-body);
+            margin-bottom: 13px;
+            font-size: 13.5px;
+            line-height: 1.72;
+        }
+
+        .card p:last-child {
+            margin-bottom: 0;
+        }
+
+        .card ul,
+        .card ol {
+            padding-left: 18px;
+            color: var(--text-body);
+            font-size: 13.5px;
+        }
+
+        .card li {
+            margin-bottom: 7px;
+            line-height: 1.65;
+        }
+
+        .card strong {
+            color: var(--text-bright);
+            font-weight: 600;
+        }
+
+        /* ─── MATH BOX ─── */
+        .math-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(99, 179, 237, 0.22);
+            border-left: 3px solid var(--accent-primary);
+            border-radius: var(--r-md);
+            padding: 18px 22px;
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .math-label {
+            font-size: 9.5px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent-primary);
+            margin-bottom: 9px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+        }
+
+        .math-formula {
+            font-size: 15px;
+            color: var(--accent-secondary);
+            text-align: center;
+            padding: 11px 0;
+            letter-spacing: 0.04em;
+        }
+
+        .math-step {
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+            margin: 7px 0;
+            font-size: 12.5px;
+            color: var(--text-body);
+        }
+
+        .step-num {
+            background: rgba(99, 179, 237, 0.15);
+            color: var(--accent-primary);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9.5px;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .math-result {
+            background: rgba(79, 209, 199, 0.07);
+            border: 1px solid rgba(79, 209, 199, 0.2);
+            border-radius: var(--r-sm);
+            padding: 9px 14px;
+            margin-top: 11px;
+            color: var(--accent-emerald);
+            font-size: 13.5px;
+            text-align: center;
+        }
+
+        /* ─── PROFESSOR'S CORNER ─── */
+        .prof-corner {
+            background: linear-gradient(135deg, rgba(252, 129, 129, 0.07) 0%, rgba(246, 173, 85, 0.04) 100%);
+            border: 1px solid rgba(252, 129, 129, 0.22);
+            border-left: 3px solid var(--accent-rose);
+            border-radius: var(--r-md);
+            padding: 18px 22px;
+            margin: 18px 0;
+        }
+
+        .pc-header {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--accent-rose);
+            margin-bottom: 13px;
+        }
+
+        .prof-corner p,
+        .prof-corner li {
+            font-size: 13px;
+            color: var(--text-body);
+            line-height: 1.65;
+        }
+
+        .prof-corner ul {
+            padding-left: 17px;
+        }
+
+        .prof-corner li {
+            margin-bottom: 7px;
+        }
+
+        .trap-q {
+            background: rgba(246, 173, 85, 0.06);
+            border: 1px solid rgba(246, 173, 85, 0.2);
+            border-radius: var(--r-sm);
+            padding: 9px 13px;
+            margin: 7px 0;
+            font-size: 12.5px;
+            color: var(--accent-amber);
+            font-style: italic;
+        }
+
+        .trap-q::before {
+            content: '❓ ';
+        }
+
+        /* ─── INSIGHT BOX ─── */
+        .insight {
+            background: linear-gradient(135deg, rgba(183, 148, 244, 0.07) 0%, rgba(99, 179, 237, 0.05) 100%);
+            border: 1px solid rgba(183, 148, 244, 0.2);
+            border-radius: var(--r-md);
+            padding: 15px 18px;
+            margin: 13px 0;
+        }
+
+        .insight .ib-label {
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent-violet);
+            margin-bottom: 7px;
+        }
+
+        .insight p {
+            font-size: 13px;
+            color: var(--text-body);
+            margin: 0;
+            line-height: 1.65;
+        }
+
+        /* ─── WARNING BOX ─── */
+        .warn-box {
+            background: rgba(246, 173, 85, 0.06);
+            border: 1px solid rgba(246, 173, 85, 0.22);
+            border-left: 3px solid var(--accent-amber);
+            border-radius: var(--r-md);
+            padding: 14px 18px;
+            margin: 13px 0;
+            font-size: 13px;
+            color: var(--text-body);
+        }
+
+        .warn-box strong {
+            color: var(--accent-amber);
+        }
+
+        /* ─── SUCCESS BOX ─── */
+        .success-box {
+            background: rgba(154, 230, 180, 0.06);
+            border: 1px solid rgba(154, 230, 180, 0.2);
+            border-left: 3px solid var(--accent-lime);
+            border-radius: var(--r-md);
+            padding: 14px 18px;
+            margin: 13px 0;
+            font-size: 13px;
+            color: var(--text-body);
+        }
+
+        .success-box strong {
+            color: var(--accent-lime);
+        }
+
+        /* ─── COMPARISON TABLE ─── */
+        .comp-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 14px 0;
+            font-size: 12.5px;
+            border-radius: var(--r-md);
+            overflow: hidden;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .comp-table th {
+            background: rgba(99, 179, 237, 0.1);
+            color: var(--accent-primary);
+            padding: 11px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 11.5px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .comp-table td {
+            padding: 10px 15px;
+            color: var(--text-body);
+            border-bottom: 1px solid var(--border-subtle);
+            line-height: 1.5;
+        }
+
+        .comp-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comp-table tr:nth-child(even) td {
+            background: rgba(255, 255, 255, 0.018);
+        }
+
+        .td-good {
+            color: var(--accent-lime) !important;
+        }
+
+        .td-bad {
+            color: var(--accent-rose) !important;
+        }
+
+        .td-mid {
+            color: var(--accent-amber) !important;
+        }
+
+        .td-label {
+            color: var(--text-bright) !important;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        /* ─── GRID ─── */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 14px;
+        }
+
+        @media (max-width: 900px) {
+
+            .grid-2,
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ─── STEP FLOW ─── */
+        .step-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin: 14px 0;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            position: relative;
+            padding-bottom: 18px;
+        }
+
+        .step-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .step-item::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 32px;
+            bottom: 0;
+            width: 1px;
+            background: var(--border-subtle);
+        }
+
+        .step-item:last-child::before {
+            display: none;
+        }
+
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+            border: 1.5px solid;
+        }
+
+        .step-circle.blue {
+            background: rgba(99, 179, 237, 0.12);
+            color: var(--accent-primary);
+            border-color: rgba(99, 179, 237, 0.35);
+        }
+
+        .step-circle.cyan {
+            background: rgba(118, 228, 247, 0.1);
+            color: var(--accent-secondary);
+            border-color: rgba(118, 228, 247, 0.35);
+        }
+
+        .step-circle.violet {
+            background: rgba(183, 148, 244, 0.1);
+            color: var(--accent-violet);
+            border-color: rgba(183, 148, 244, 0.35);
+        }
+
+        .step-circle.emerald {
+            background: rgba(79, 209, 199, 0.1);
+            color: var(--accent-emerald);
+            border-color: rgba(79, 209, 199, 0.35);
+        }
+
+        .step-circle.amber {
+            background: rgba(246, 173, 85, 0.1);
+            color: var(--accent-amber);
+            border-color: rgba(246, 173, 85, 0.35);
+        }
+
+        .step-circle.rose {
+            background: rgba(252, 129, 129, 0.1);
+            color: var(--accent-rose);
+            border-color: rgba(252, 129, 129, 0.35);
+        }
+
+        .step-circle.lime {
+            background: rgba(154, 230, 180, 0.1);
+            color: var(--accent-lime);
+            border-color: rgba(154, 230, 180, 0.35);
+        }
+
+        .step-body {
+            flex: 1;
+            padding-top: 4px;
+        }
+
+        .step-body strong {
+            color: var(--text-bright);
+            font-size: 13.5px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .step-body p {
+            font-size: 12.5px;
+            color: var(--text-body);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* ─── TIMING DIAGRAM (SVG wrapper) ─── */
+        .diagram-wrap {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--r-lg);
+            padding: 24px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+
+        .diagram-caption {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        /* ─── SPEC TABLE ─── */
+        .spec-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 9px 0;
+            border-bottom: 1px solid var(--border-subtle);
+            font-size: 12.5px;
+        }
+
+        .spec-row:last-child {
+            border-bottom: none;
+        }
+
+        .spec-key {
+            color: var(--text-muted);
+            min-width: 120px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11.5px;
+        }
+
+        .spec-val {
+            color: var(--text-bright);
+            font-weight: 500;
+        }
+
+        .spec-note {
+            color: var(--text-dim);
+            font-size: 11px;
+            margin-left: auto;
+        }
+
+        /* ─── TAG ─── */
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10.5px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .tag-blue {
+            background: rgba(99, 179, 237, 0.15);
+            color: var(--accent-primary);
+        }
+
+        .tag-cyan {
+            background: rgba(118, 228, 247, 0.12);
+            color: var(--accent-secondary);
+        }
+
+        .tag-violet {
+            background: rgba(183, 148, 244, 0.12);
+            color: var(--accent-violet);
+        }
+
+        .tag-amber {
+            background: rgba(246, 173, 85, 0.12);
+            color: var(--accent-amber);
+        }
+
+        .tag-rose {
+            background: rgba(252, 129, 129, 0.12);
+            color: var(--accent-rose);
+        }
+
+        .tag-emerald {
+            background: rgba(79, 209, 199, 0.12);
+            color: var(--accent-emerald);
+        }
+
+        .tag-lime {
+            background: rgba(154, 230, 180, 0.12);
+            color: var(--accent-lime);
+        }
+
+        /* ─── INLINE CODE ─── */
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            background: rgba(99, 179, 237, 0.1);
+            color: var(--accent-secondary);
+            padding: 1px 5px;
+            border-radius: 3px;
+        }
+
+        /* ─── SCROLLBAR ─── */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
+        }
+
+        /* ─── ANIMATION ─── */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .sec {
+            animation: fadeInUp 0.4s ease both;
+        }
+
+        /* ─── MOBILE TOGGLE ─── */
+        #sb-toggle {
+            display: none;
+            position: fixed;
+            top: 14px;
+            left: 14px;
+            z-index: 300;
+            background: rgba(8, 10, 22, 0.9);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 8px 10px;
+            cursor: pointer;
+            color: var(--text-bright);
+            font-size: 18px;
+        }
+
+        @media (max-width: 768px) {
+            #sb-toggle {
+                display: block;
+            }
+
+            #sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+
+            #sidebar.open {
+                transform: translateX(0);
+            }
+
+            #main {
+                margin-left: 0;
+                max-width: 100vw;
+                padding: 20px 18px 80px;
+            }
+        }
+
+        /* ─── WIFI STANDARDS GRID ─── */
+        .wifi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--r-lg);
+            padding: 18px 20px;
+            transition: all 0.2s;
+        }
+
+        .wifi-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-2px);
+        }
+
+        .wifi-std {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-bright);
+            margin-bottom: 8px;
+        }
+
+        .wifi-speed {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .wifi-detail {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* ─── TIMING STRIP ─── */
+        .timing-strip {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin: 10px 0;
+            border-radius: 6px;
+            overflow: hidden;
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .ts-block {
+            padding: 7px 10px;
+            text-align: center;
+            white-space: nowrap;
+            font-weight: 600;
+            font-size: 10px;
+        }
+
+        .ts-difs {
+            background: rgba(183, 148, 244, 0.25);
+            color: var(--accent-violet);
+        }
+
+        .ts-backoff {
+            background: rgba(246, 173, 85, 0.2);
+            color: var(--accent-amber);
+        }
+
+        .ts-rts {
+            background: rgba(99, 179, 237, 0.25);
+            color: var(--accent-primary);
+        }
+
+        .ts-sifs {
+            background: rgba(79, 209, 199, 0.2);
+            color: var(--accent-emerald);
+        }
+
+        .ts-cts {
+            background: rgba(118, 228, 247, 0.22);
+            color: var(--accent-secondary);
+        }
+
+        .ts-data {
+            background: rgba(154, 230, 180, 0.2);
+            color: var(--accent-lime);
+        }
+
+        .ts-ack {
+            background: rgba(252, 129, 129, 0.2);
+            color: var(--accent-rose);
+        }
+
+        .ts-busy {
+            background: rgba(100, 100, 120, 0.3);
+            color: var(--text-muted);
+        }
+
+        .ts-label {
+            background: transparent;
+            color: var(--text-dim);
+            font-size: 9px;
+            padding: 2px 4px;
+        }
+
+        /* ─── IFS RULER ─── */
+        .ifs-ruler {
+            position: relative;
+            height: 90px;
+            margin: 20px 0;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .ifs-bar {
+            position: absolute;
+            bottom: 0;
+            height: 100%;
+            display: flex;
+            align-items: flex-start;
+            padding-top: 6px;
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            border-right: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+
+    <button id="sb-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+    <!-- ═══════════════════════════════════════════ SIDEBAR ═══════════════════════════════════════════ -->
+    <nav id="sidebar">
+        <div class="sb-head">
+            <div class="sb-course">CSE 4615 · Wireless Networks</div>
+            <div class="sb-title">IEEE 802.11 Wireless LANs</div>
+            <div class="sb-lec">Lecture 5 · Complete Study Guide</div>
+        </div>
+        <div class="sb-nav">
+            <div class="sb-group-label">Overview</div>
+            <a href="#sec-overview" class="sb-link"><span class="sb-num">01</span>Scope &amp; Introduction</a>
+            <a href="#sec-arch" class="sb-link"><span class="sb-num">02</span>Architecture &amp; BSS</a>
+            <a href="#sec-cf" class="sb-link"><span class="sb-num">03</span>Coordination Functions (DCF/PCF)</a>
+            <a href="#sec-ibss" class="sb-link"><span class="sb-num">04</span>IBSS — Ad-Hoc Networks</a>
+            <a href="#sec-standards" class="sb-link"><span class="sb-num">05</span>802.11 Standards Comparison</a>
+
+            <div class="sb-group-label">MAC Protocol</div>
+            <a href="#sec-lbt" class="sb-link"><span class="sb-num">06</span>Listen Before Talk (CCA &amp; NAV)</a>
+            <a href="#sec-dcf" class="sb-link"><span class="sb-num">07</span>DCF Deep Dive (CSMA/CA)</a>
+            <a href="#sec-ifs" class="sb-link"><span class="sb-num">08</span>Interframe Spaces (SIFS/PIFS/DIFS/EIFS)</a>
+            <a href="#sec-timing" class="sb-link"><span class="sb-num">09</span>Frame Exchange Timing Scenarios</a>
+            <a href="#sec-ca" class="sb-link"><span class="sb-num">10</span>Collision Avoidance &amp; Backoff</a>
+            <a href="#sec-cw" class="sb-link"><span class="sb-num">11</span>Contention Window &amp; Binary Exp.
+                Backoff</a>
+            <a href="#sec-rtscts" class="sb-link"><span class="sb-num">12</span>RTS/CTS Mechanism</a>
+            <a href="#sec-hidden" class="sb-link"><span class="sb-num">13</span>Hidden Station Problem &amp; NAV</a>
+
+            <div class="sb-group-label">Analysis</div>
+            <a href="#sec-backoff-example" class="sb-link"><span class="sb-num">14</span>Backoff Worked Example</a>
+            <a href="#sec-overhead" class="sb-link"><span class="sb-num">15</span>Medium Access Overhead</a>
+            <a href="#sec-dcf-algo" class="sb-link"><span class="sb-num">16</span>DCF Full Algorithm</a>
+            <a href="#sec-summary" class="sb-link"><span class="sb-num">17</span>Master Summary &amp; Cheat Sheet</a>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════ MAIN ═══════════════════════════════════════════ -->
+    <main id="main">
+
+        <!-- HERO -->
+        <div class="hero">
+            <div class="hero-eyebrow">📡 CSE 4615 · Lecture 5</div>
+            <h1>IEEE 802.11 Wireless<br>Local Area Networks</h1>
+            <p class="hero-sub">A complete, professor-proof deep dive into 802.11 architecture, all coordination
+                functions, every interframe space, and the full CSMA/CA collision avoidance mechanism — including worked
+                math and trap questions.</p>
+            <div class="hero-badges">
+                <span class="badge badge-blue">🏛️ Architecture &amp; BSS</span>
+                <span class="badge badge-cyan">⏱️ IFS Timing</span>
+                <span class="badge badge-violet">📡 CSMA/CA</span>
+                <span class="badge badge-emerald">🔄 RTS/CTS</span>
+                <span class="badge badge-amber">📐 Backoff Math</span>
+                <span class="badge badge-rose">🚨 Prof's Picky Corner</span>
+                <span class="badge badge-lime">🏗️ DCF Algorithm</span>
+            </div>
+        </div>
+
+        <!-- ══════════════════ SECTION 1: OVERVIEW ══════════════════ -->
+        <section class="sec" id="sec-overview">
+            <div class="sec-header">
+                <div class="sec-num">01</div>
+                <div class="sec-title-wrap">
+                    <h2>Scope &amp; Introduction to 802.11</h2>
+                    <div class="sec-subtitle">What 802.11 covers, and why it matters</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📖 What is IEEE 802.11?</h3>
+                <p>IEEE 802.11 is a family of standards produced by the Institute of Electrical and Electronics
+                    Engineers (IEEE) that specifies how devices communicate over a shared wireless radio channel. It is
+                    the technical backbone of what the consumer world calls <strong>Wi-Fi</strong>. The "802" prefix
+                    refers to the IEEE LAN/MAN Standards Committee, and ".11" identifies the working group responsible
+                    for wireless LANs (WLANs).</p>
+                <p>The standard operates at two layers of the OSI model: the <strong>Physical Layer (PHY)</strong>,
+                    which handles how bits are converted to radio waves and back, and the <strong>Data Link Layer's MAC
+                        sublayer</strong>, which governs who gets to transmit on the shared channel and when. This
+                    lecture is focused primarily on the MAC layer.</p>
+                <p>The three major topics covered in Lecture 5 are:</p>
+                <ul>
+                    <li><strong>Scope of 802.11:</strong> The range of standards and what they govern.</li>
+                    <li><strong>Reference Model, Architecture, and Services:</strong> How the network is structured,
+                        what the building blocks are (BSS, DS, AP), and what services the standard provides.</li>
+                    <li><strong>Medium Access Control (MAC) Protocol:</strong> The rules for accessing the shared radio
+                        channel fairly and efficiently without excessive collisions.</li>
+                </ul>
+            </div>
+
+            <div class="insight">
+                <div class="ib-label">💡 Key Insight — Why a dedicated MAC is needed</div>
+                <p>In a wired Ethernet network (802.3), collision <em>detection</em> (CSMA/CD) is possible because a
+                    transmitting node can simultaneously listen to the wire and detect if another signal is corrupting
+                    its own transmission. In wireless, this is fundamentally impossible: when your radio is transmitting
+                    at full power, the transmitted signal drowns out any incoming signal at your own antenna. So
+                    wireless LANs must use collision <em>avoidance</em> (CSMA/CA), which is far more complex and
+                    introduces overhead. Understanding this core difference explains every design decision in 802.11
+                    MAC.</p>
+            </div>
+        </section>
+
+        <!-- ══════════════════ SECTION 2: ARCHITECTURE ══════════════════ -->
+        <section class="sec" id="sec-arch">
+            <div class="sec-header">
+                <div class="sec-num">02</div>
+                <div class="sec-title-wrap">
+                    <h2>Architecture &amp; the Basic Service Set</h2>
+                    <div class="sec-subtitle">BSS, DS, ESS, AP — the physical &amp; logical structure of a WLAN</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🏗️ The Basic Service Set (BSS) — The Atom of 802.11</h3>
+                <p>The <strong>Basic Service Set (BSS)</strong> is the fundamental, irreducible building block of any
+                    IEEE 802.11 network. Think of it as the smallest self-contained unit. A BSS consists of a group of
+                    wireless stations (laptops, phones, IoT devices) that share the same radio channel and are governed
+                    by a single <strong>Coordination Function (CF)</strong>.</p>
+                <p>Every BSS is identified by a <strong>BSSID</strong> (Basic Service Set Identifier), which is a 48-bit
+                    value. In infrastructure mode, the BSSID is the MAC address of the Access Point (AP).</p>
+
+                <h4>The Infrastructure BSS (with an Access Point)</h4>
+                <p>In the most common deployment, a BSS includes one special station called the <strong>Access Point
+                        (AP)</strong>. The AP acts as a central hub: all communication between client stations passes
+                    through the AP, even if the two clients are physically next to each other. This is called
+                    <em>infrastructure mode</em>. The AP also connects the WLAN to the wired world through the
+                    <strong>Distribution System (DS)</strong>.
+                </p>
+
+                <h4>The Distribution System (DS)</h4>
+                <p>The DS is the backbone that interconnects multiple APs and, through a <strong>Portal</strong>,
+                    connects the wireless network to other 802.X wired LANs (like Ethernet). The DS is typically a wired
+                    Ethernet switch. The DS is what allows a laptop on one BSS to communicate with a device on a
+                    completely different BSS — the data travels wirelessly to the first AP, through the DS, to the
+                    second AP, and then wirelessly to the destination.</p>
+
+                <h4>Extended Service Set (ESS)</h4>
+                <p>When two or more BSSs are connected via a DS, the result is an <strong>Extended Service Set
+                        (ESS)</strong>. From the perspective of any station, the ESS appears as a single large logical
+                    network. This is what allows you to walk around a large building with your laptop, seamlessly
+                    handing off between different APs, all appearing as the same Wi-Fi network.</p>
+            </div>
+
+            <!-- 802.11 Architecture Diagram (SVG) -->
+            <div class="diagram-wrap">
+                <svg viewBox="0 0 760 320" xmlns="http://www.w3.org/2000/svg"
+                    style="width:100%;max-width:760px;display:block;margin:0 auto;">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="rgba(99,179,237,0.6)" />
+                        </marker>
+                    </defs>
+
+                    <!-- DS backbone -->
+                    <rect x="150" y="30" width="460" height="28" rx="6" fill="rgba(99,179,237,0.12)"
+                        stroke="rgba(99,179,237,0.35)" stroke-width="1.5" />
+                    <text x="380" y="49" fill="#63b3ed" text-anchor="middle" font-size="13"
+                        font-family="JetBrains Mono, monospace" font-weight="700">DS — Distribution System</text>
+
+                    <!-- Left BSS -->
+                    <ellipse cx="200" cy="195" rx="140" ry="90" fill="rgba(118,228,247,0.04)"
+                        stroke="rgba(118,228,247,0.25)" stroke-width="1.5" stroke-dasharray="5,3" />
+                    <text x="200" y="300" fill="rgba(118,228,247,0.6)" text-anchor="middle" font-size="11"
+                        font-family="JetBrains Mono, monospace">BSS-1</text>
+
+                    <!-- Right BSS -->
+                    <ellipse cx="560" cy="195" rx="140" ry="90" fill="rgba(183,148,244,0.04)"
+                        stroke="rgba(183,148,244,0.25)" stroke-width="1.5" stroke-dasharray="5,3" />
+                    <text x="560" y="300" fill="rgba(183,148,244,0.6)" text-anchor="middle" font-size="11"
+                        font-family="JetBrains Mono, monospace">BSS-2</text>
+
+                    <!-- AP Left -->
+                    <rect x="172" y="85" width="56" height="30" rx="5" fill="rgba(99,179,237,0.2)"
+                        stroke="rgba(99,179,237,0.5)" stroke-width="1.5" />
+                    <text x="200" y="105" fill="#63b3ed" text-anchor="middle" font-size="11"
+                        font-family="JetBrains Mono, monospace" font-weight="700">AP-1</text>
+
+                    <!-- AP Right -->
+                    <rect x="532" y="85" width="56" height="30" rx="5" fill="rgba(183,148,244,0.2)"
+                        stroke="rgba(183,148,244,0.5)" stroke-width="1.5" />
+                    <text x="560" y="105" fill="#b794f4" text-anchor="middle" font-size="11"
+                        font-family="JetBrains Mono, monospace" font-weight="700">AP-2</text>
+
+                    <!-- Stations left BSS -->
+                    <circle cx="110" cy="190" r="18" fill="rgba(118,228,247,0.12)" stroke="rgba(118,228,247,0.4)"
+                        stroke-width="1.2" />
+                    <text x="110" y="195" fill="#76e4f7" text-anchor="middle" font-size="10"
+                        font-family="JetBrains Mono, monospace">STA</text>
+                    <circle cx="175" cy="235" r="18" fill="rgba(118,228,247,0.12)" stroke="rgba(118,228,247,0.4)"
+                        stroke-width="1.2" />
+                    <text x="175" y="240" fill="#76e4f7" text-anchor="middle" font-size="10"
+                        font-family="JetBrains Mono, monospace">STA</text>
+                    <circle cx="250" cy="220" r="18" fill="rgba(118,228,247,0.12)" stroke="rgba(118,228,247,0.4)"
+                        stroke-width="1.2" />
+                    <text x="250" y="225" fill="#76e4f7" text-anchor="middle" font-size="10"
+                        font-family="JetBrains Mono, monospace">STA</text>
+
+                    <!-- Stations right BSS -->
+                    <circle cx="470" cy="190" r="18" fill="rgba(183,148,244,0.12)" stroke="rgba(183,148,244,0.4)"
+                        stroke-width="1.2" />
+                    <text x="470" y="195" fill="#b794f4" text-anchor="middle" font-size="10"
+                        font-family="JetBrains Mono, monospace">STA</text>
+                    <circle cx="545" cy="235" r="18" fill="rgba(183,148,244,0.12)" stroke="rgba(183,148,244,0.4)"
+                        stroke-width="1.2" />
+                    <text x="545" y="240" fill="#b794f4" text-anchor="middle" font-size="10"
+                        font-family="JetBrains Mono, monospace">STA</text>
+                    <circle cx="625" cy="210" r="18" fill="rgba(183,148,244,0.12)" stroke="rgba(183,148,244,0.4)"
+                        stroke-width="1.2" />
+                    <text x="625" y="215" fill="#b794f4" text-anchor="middle" font-size="10"
+                        font-family="JetBrains Mono, monospace">STA</text>
+
+                    <!-- Wire AP to DS -->
+                    <line x1="200" y1="58" x2="200" y2="85" stroke="rgba(99,179,237,0.5)" stroke-width="2" />
+                    <line x1="560" y1="58" x2="560" y2="85" stroke="rgba(183,148,244,0.5)" stroke-width="2" />
+
+                    <!-- Wireless signals (zigzag lines) -->
+                    <line x1="200" y1="115" x2="128" y2="172" stroke="rgba(118,228,247,0.3)" stroke-width="1"
+                        stroke-dasharray="4,2" />
+                    <line x1="200" y1="115" x2="175" y2="217" stroke="rgba(118,228,247,0.3)" stroke-width="1"
+                        stroke-dasharray="4,2" />
+                    <line x1="200" y1="115" x2="250" y2="202" stroke="rgba(118,228,247,0.3)" stroke-width="1"
+                        stroke-dasharray="4,2" />
+                    <line x1="560" y1="115" x2="488" y2="172" stroke="rgba(183,148,244,0.3)" stroke-width="1"
+                        stroke-dasharray="4,2" />
+                    <line x1="560" y1="115" x2="545" y2="217" stroke="rgba(183,148,244,0.3)" stroke-width="1"
+                        stroke-dasharray="4,2" />
+                    <line x1="560" y1="115" x2="625" y2="192" stroke="rgba(183,148,244,0.3)" stroke-width="1"
+                        stroke-dasharray="4,2" />
+
+                    <!-- Portal label -->
+                    <rect x="340" y="68" width="80" height="20" rx="4" fill="rgba(79,209,199,0.1)"
+                        stroke="rgba(79,209,199,0.3)" stroke-width="1" />
+                    <text x="380" y="82" fill="#4fd1c7" text-anchor="middle" font-size="9.5"
+                        font-family="JetBrains Mono, monospace">Portal→802.X</text>
+
+                    <!-- IBSS bottom right -->
+                    <ellipse cx="690" cy="265" rx="55" ry="40" fill="rgba(246,173,85,0.04)"
+                        stroke="rgba(246,173,85,0.3)" stroke-width="1.5" stroke-dasharray="5,3" />
+                    <text x="690" y="312" fill="rgba(246,173,85,0.7)" text-anchor="middle" font-size="10"
+                        font-family="JetBrains Mono, monospace">IBSS</text>
+                    <circle cx="670" cy="255" r="14" fill="rgba(246,173,85,0.12)" stroke="rgba(246,173,85,0.4)"
+                        stroke-width="1" />
+                    <text x="670" y="259" fill="#f6ad55" text-anchor="middle" font-size="9"
+                        font-family="JetBrains Mono, monospace">STA</text>
+                    <circle cx="710" cy="270" r="14" fill="rgba(246,173,85,0.12)" stroke="rgba(246,173,85,0.4)"
+                        stroke-width="1" />
+                    <text x="710" y="274" fill="#f6ad55" text-anchor="middle" font-size="9"
+                        font-family="JetBrains Mono, monospace">STA</text>
+                    <line x1="684" y1="258" x2="696" y2="266" stroke="rgba(246,173,85,0.4)" stroke-width="1"
+                        stroke-dasharray="3,2" />
+                    <text x="690" y="238" fill="rgba(246,173,85,0.6)" text-anchor="middle" font-size="9"
+                        font-family="JetBrains Mono, monospace">no AP</text>
+                </svg>
+                <div class="diagram-caption">Figure: 802.11 Reference Architecture — Two Infrastructure BSSs connected
+                    via DS forming an ESS, plus a standalone IBSS (ad-hoc)</div>
+            </div>
+
+            <div class="prof-corner">
+                <div class="pc-header">🎓 Professor's Picky Corner — Architecture</div>
+                <p>Exam questions love to test whether you know the difference between architectural components:</p>
+                <ul>
+                    <li>A <strong>BSS is not the same as a WLAN.</strong> A WLAN can be a single BSS or an ESS (multiple
+                        BSSs linked by a DS).</li>
+                    <li>The <strong>DS does not have to be wireless.</strong> The standard says the DS is a
+                        <em>logical</em> concept — it is typically implemented as a wired switch, but 802.11 does not
+                        prohibit a wireless DS.
+                    </li>
+                    <li>The <strong>Portal is a bridge</strong> between the 802.11 DS and any 802.X wired LAN. Without
+                        the portal, wired and wireless stations cannot communicate.</li>
+                    <li>A <strong>BSSID is NOT the SSID.</strong> SSID is the human-readable network name (like
+                        "Home_WiFi"). BSSID is the MAC address used to distinguish BSSs at the frame level.</li>
+                </ul>
+                <div class="trap-q">If a professor draws an architecture diagram showing two ovals (BSSs) connected to a
+                    horizontal line, what is the horizontal line called? → It is the Distribution System (DS). The
+                    connection from the DS to a wired Ethernet LAN is through a Portal.</div>
+            </div>
+        </section>
+
+        <!-- ══════════════════ SECTION 3: COORDINATION FUNCTIONS ══════════════════ -->
+        <section class="sec" id="sec-cf">
+            <div class="sec-header">
+                <div class="sec-num">03</div>
+                <div class="sec-title-wrap">
+                    <h2>Coordination Functions: DCF &amp; PCF</h2>
+                    <div class="sec-subtitle">The two modes of spectrum management in IEEE 802.11</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🎛️ What is a Coordination Function?</h3>
+                <p>A <strong>Coordination Function (CF)</strong> is the set of rules that governs <em>how</em> a station
+                    gains access to the wireless medium. Think of it as a traffic controller. When multiple stations
+                    want to transmit simultaneously, the CF determines who goes first, how long they wait, and what
+                    happens when things go wrong. The CF is implemented entirely in software and hardware within each
+                    station (and the AP).</p>
+                <p>The Coordination Function resides in the <strong>MAC sublayer</strong> and is the central subject of
+                    Lecture 5.</p>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3>📡 DCF — Distributed Coordination Function</h3>
+                    <p>The DCF is the <strong>mandatory, baseline</strong> access mechanism for 802.11. Every single
+                        station in every single BSS must implement and support DCF. It is "distributed" because there is
+                        no central controller — every station independently runs the same algorithm to decide when to
+                        transmit.</p>
+                    <p><strong>Used for:</strong> Asynchronous (best-effort) traffic — web browsing, file transfers,
+                        email — where occasional delay is acceptable.</p>
+                    <p>The DCF is based on <strong>CSMA/CA</strong> (Carrier Sense Multiple Access with Collision
+                        Avoidance). This is the core of Lecture 5.</p>
+                    <div class="tag tag-blue">MANDATORY</div>
+                    <div class="tag tag-cyan" style="margin-left:6px">ASYNCHRONOUS</div>
+                </div>
+
+                <div class="card">
+                    <h3>⏰ PCF — Point Coordination Function</h3>
+                    <p>The PCF is an <strong>optional extension</strong> built on top of DCF. It is called "point"
+                        because a single station — the <strong>Point Coordinator (PC)</strong>, typically the AP —
+                        centrally controls who transmits and when. It uses a polling mechanism.</p>
+                    <p><strong>Used for:</strong> Synchronous, time-bounded traffic like voice or video, where
+                        predictable delay (QoS) is required.</p>
+                    <p>The PCF operates during a special <strong>Contention-Free Period (CFP)</strong>, taking priority
+                        over DCF stations by using PIFS (a shorter interframe space than DIFS).</p>
+                    <div class="tag tag-violet">OPTIONAL</div>
+                    <div class="tag tag-amber" style="margin-left:6px">QoS / SYNCHRONOUS</div>
+                </div>
+            </div>
+
+            <div class="warn-box">
+                <strong>⚠️ Important:</strong> DCF and PCF are not competing protocols. They are <em>layered</em>. PCF
+                is built on top of DCF. When the PCF's CFP is not active, the channel falls back to normal DCF
+                operation. The two periods alternate: CFP (PCF-controlled) → Contention Period (CP, DCF-controlled) →
+                CFP → CP...
+            </div>
+
+            <div class="prof-corner">
+                <div class="pc-header">🎓 Professor's Picky Corner — DCF vs PCF</div>
+                <ul>
+                    <li><strong>DCF is NOT optional.</strong> This is a classic trap. Every station must support DCF.
+                        PCF is the optional one.</li>
+                    <li>The <strong>PCF uses PIFS</strong> (PCF Interframe Space), which is shorter than DIFS (used by
+                        DCF). This shorter gap gives PCF stations higher priority — they can seize the channel before
+                        any DCF station can.</li>
+                    <li>PCF is almost never used in practice today. It was superseded by <strong>802.11e
+                            (EDCA/HCCA)</strong> for QoS. If asked about modern QoS in Wi-Fi, the answer is 802.11e, not
+                        PCF. But if the exam is about 802.11 as per the Lecture 5 slides, talk about PCF.</li>
+                </ul>
+                <div class="trap-q">True or False: Both DCF and PCF are mandatory in every 802.11 station. → FALSE. Only
+                    DCF is mandatory. PCF is optional.</div>
+            </div>
+        </section>
+
+        <!-- ══════════════════ SECTION 4: IBSS ══════════════════ -->
+        <section class="sec" id="sec-ibss">
+            <div class="sec-header">
+                <div class="sec-num">04</div>
+                <div class="sec-title-wrap">
+                    <h2>IBSS — Independent Basic Service Set</h2>
+                    <div class="sec-subtitle">Ad-hoc mode: peer-to-peer wireless without an access point</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🔗 IBSS: The Simplest 802.11 Network</h3>
+                <p>An <strong>Independent Basic Service Set (IBSS)</strong> is the absolute simplest form of an 802.11
+                    network. It consists of a minimum of <strong>two stations</strong> communicating directly with each
+                    other — no AP, no DS, no connection to any wired infrastructure. This is also called <em>ad-hoc
+                        mode</em> or <em>peer-to-peer mode</em>.</p>
+
+                <h4>Key Characteristics of IBSS</h4>
+                <ul>
+                    <li><strong>No hierarchy:</strong> No station has priority over any other. There is no "master" or
+                        "central controller."</li>
+                    <li><strong>Distributed responsibility:</strong> Since there is no AP to act as coordinator, the
+                        responsibility for coordinating medium access is <em>distributed equally among all stations</em>
+                        — exactly as in DCF.</li>
+                    <li><strong>Only DCF is used:</strong> Because there is no AP to act as Point Coordinator, PCF
+                        cannot function in an IBSS. Only DCF applies.</li>
+                    <li><strong>Limited range:</strong> All stations must be within direct radio range of each other.
+                        There is no relay mechanism (unlike infrastructure mode where the AP relays traffic).</li>
+                </ul>
+
+                <h4>Practical Example</h4>
+                <p>Imagine two engineers in a field using laptops to share a file without any Wi-Fi infrastructure. They
+                    create an IBSS. Each laptop independently runs the DCF algorithm. When Laptop A has data to send to
+                    Laptop B, it senses the channel, waits for silence plus a DIFS interval, runs its random backoff,
+                    and transmits directly.</p>
+            </div>
+
+            <div class="insight">
+                <div class="ib-label">💡 Insight — Why IBSS uses only DCF</div>
+                <p>PCF requires a Point Coordinator (typically the AP) to send polling frames to grant transmission
+                    rights to individual stations. In an IBSS, there is no AP and no designated Point Coordinator.
+                    Therefore, no station can grant "permission" to others, and the PCF mechanism simply doesn't apply.
+                    DCF's distributed, contention-based approach is the only viable option.</p>
+            </div>
+
+            <div class="prof-corner">
+                <div class="pc-header">🎓 Professor's Picky Corner — IBSS</div>
+                <div class="trap-q">Can PCF operate in an IBSS? → No. PCF requires a Point Coordinator (the AP role). An
+                    IBSS has no AP, so only DCF operates.</div>
+                <div class="trap-q">What is the minimum number of stations in an IBSS? → Two. A single station cannot
+                    form an IBSS (you need at least one other station to communicate with).</div>
+            </div>
+        </section>
+
+        <!-- ══════════════════ SECTION 5: STANDARDS ══════════════════ -->
+        <section class="sec" id="sec-standards">
+            <div class="sec-header">
+                <div class="sec-num">05</div>
+                <div class="sec-title-wrap">
+                    <h2>802.11 Standards Comparison</h2>
+                    <div class="sec-subtitle">From 802.11b to 802.11ac — frequencies, speeds, and technologies</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📊 The 802.11 Family at a Glance</h3>
+                <p>The slides list five key standards. <strong>All of them use CSMA/CA for multiple access</strong> —
+                    this is the single most important fact about the MAC layer across all variants. The differences lie
+                    in the PHY layer (radio technology, frequency band, modulation).</p>
+            </div>
+
+            <div
+                style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:18px;">
+                <div class="wifi-card">
+                    <div class="wifi-std">802.11b</div>
+                    <div class="wifi-speed" style="color:#63b3ed;">11 Mbps</div>
+                    <div class="wifi-detail">Band: 2.4–2.5 GHz (ISM)<br>Modulation: DSSS (HR-DSSS)<br>Status: Legacy.
+                        First widely adopted Wi-Fi standard. Prone to interference.</div>
+                </div>
+                <div class="wifi-card">
+                    <div class="wifi-std">802.11a</div>
+                    <div class="wifi-speed" style="color:#76e4f7;">54 Mbps</div>
+                    <div class="wifi-detail">Band: 5–6 GHz (U-NII)<br>Modulation: OFDM<br>Status: Less range due to
+                        higher freq, but less interference. IFS values from this standard are used extensively in
+                        calculations.</div>
+                </div>
+                <div class="wifi-card">
+                    <div class="wifi-std">802.11g</div>
+                    <div class="wifi-speed" style="color:#b794f4;">54 Mbps</div>
+                    <div class="wifi-detail">Band: 2.4–2.5 GHz<br>Modulation: OFDM<br>Status: Combined 11a speed with
+                        11b range. Backward compatible with 11b.</div>
+                </div>
+                <div class="wifi-card">
+                    <div class="wifi-std">802.11n</div>
+                    <div class="wifi-speed" style="color:#4fd1c7;">600 Mbps</div>
+                    <div class="wifi-detail">Bands: 2.4 &amp; 5 GHz<br>Modulation: MIMO, OFDM<br>Extras: Frame
+                        Aggregation, Channel Bonding (40 MHz)</div>
+                </div>
+                <div class="wifi-card">
+                    <div class="wifi-std">802.11ac</div>
+                    <div class="wifi-speed" style="color:#f6ad55;">3.4 Gbps</div>
+                    <div class="wifi-detail">Band: 5–6 GHz only<br>Modulation: MU-MIMO, OFDM (256-QAM)<br>Extras: 80/160
+                        MHz channels, Wave 2 = MU-MIMO</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🔬 Key PHY Technologies Explained</h3>
+
+                <h4>DSSS — Direct Sequence Spread Spectrum (802.11b)</h4>
+                <p>DSSS spreads the data signal across a wider frequency band than strictly necessary by multiplying it
+                    with a high-rate pseudo-random "chipping sequence" (e.g., Barker code). The receiver knows the
+                    chipping sequence and can recover the original signal. Advantage: resistance to narrowband
+                    interference. Disadvantage: lower data rates compared to OFDM.</p>
+
+                <h4>OFDM — Orthogonal Frequency Division Multiplexing (802.11a/g/n/ac)</h4>
+                <p>OFDM divides the available channel bandwidth into many narrow sub-carriers (e.g., 52 sub-carriers in
+                    20 MHz), each carrying a portion of the data at a lower rate. The sub-carriers are mathematically
+                    "orthogonal" — they don't interfere with each other. This makes OFDM extremely resistant to
+                    multipath fading (where signal copies arrive at the receiver at slightly different times). OFDM
+                    enables high spectral efficiency and is the key reason 802.11a/g achieved 54 Mbps vs 11b's 11 Mbps.
+                </p>
+
+                <h4>MIMO — Multiple Input, Multiple Output (802.11n)</h4>
+                <p>MIMO uses multiple antennas at both transmitter and receiver. The key insight is that in a multipath
+                    environment, multiple spatial paths exist between the antennas. MIMO exploits these spatial paths to
+                    send multiple independent data streams simultaneously (called <em>spatial multiplexing</em>),
+                    multiplying throughput. 802.11n supports up to 4×4 MIMO (4 antennas TX, 4 antennas RX). Frame
+                    aggregation (A-MPDU, A-MSDU) and channel bonding (40 MHz = 2×20 MHz) further boost throughput to 600
+                    Mbps.</p>
+
+                <h4>MU-MIMO — Multi-User MIMO (802.11ac)</h4>
+                <p>Standard MIMO (Single-User MIMO) serves one device at a time, just faster. MU-MIMO allows the AP to
+                    transmit to <strong>multiple clients simultaneously</strong> on the same channel using different
+                    spatial beams (beamforming). 802.11ac Wave 2 supports 4-user downlink MU-MIMO. This dramatically
+                    improves network capacity when many devices are present.</p>
+            </div>
+
+            <div class="comp-table-wrap">
+                <table class="comp-table">
+                    <thead>
+                        <tr>
+                            <th>Standard</th>
+                            <th>Freq Band</th>
+                            <th>Max Rate</th>
+                            <th>PHY Tech</th>
+                            <th>Key Feature</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="td-label">802.11b</td>
+                            <td>2.4 GHz</td>
+                            <td class="td-bad">11 Mbps</td>
+                            <td>DSSS</td>
+                            <td>First mass-market Wi-Fi</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">802.11a</td>
+                            <td>5 GHz</td>
+                            <td class="td-mid">54 Mbps</td>
+                            <td>OFDM</td>
+                            <td>Less interference, IFS reference values</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">802.11g</td>
+                            <td>2.4 GHz</td>
+                            <td class="td-mid">54 Mbps</td>
+                            <td>OFDM</td>
+                            <td>Backward compat. with 11b</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">802.11n</td>
+                            <td>2.4 &amp; 5 GHz</td>
+                            <td class="td-good">600 Mbps</td>
+                            <td>MIMO + OFDM</td>
+                            <td>Frame aggregation, channel bonding</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">802.11ac</td>
+                            <td>5 GHz</td>
+                            <td class="td-good">3.4 Gbps</td>
+                            <td>MU-MIMO + OFDM</td>
+                            <td>Multi-user simultaneous TX</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="insight">
+                <div class="ib-label">💡 The One Thing To Remember</div>
+                <p><strong>ALL 802.11 variants — b, a, g, n, ac — use CSMA/CA for multiple access at the MAC
+                        layer.</strong> The PHY technology (OFDM, MIMO, etc.) changes how bits are modulated over the
+                    air. But the MAC protocol — CSMA/CA with DCF — is the common denominator. The exam may ask about a
+                    specific standard's frequency or speed, but the MAC behavior is the same for all.</p>
+            </div>
+
+            <div class="prof-corner">
+                <div class="pc-header">🎓 Professor's Picky Corner — Standards</div>
+                <ul>
+                    <li><strong>802.11a uses the 5 GHz band.</strong> Despite coming before 802.11g alphabetically,
+                        802.11a was ratified at the same time as 802.11b in 1999, but used a different band. Students
+                        often mix up a and g.</li>
+                    <li><strong>802.11n is dual-band.</strong> Both 2.4 GHz AND 5 GHz. The others are single-band
+                        (except 802.11ac which is 5 GHz only).</li>
+                    <li>The <strong>IFS timing values in the slides (9µs, 16µs, 25µs, 34µs)</strong> are all for
+                        <strong>802.11a</strong> specifically. If an exam question asks you to calculate IFS for
+                        802.11b, the values are different. Always confirm which standard.
+                    </li>
+                    <li><strong>Frame Aggregation in 802.11n</strong> is a key mechanism for reducing the overhead
+                        penalty of CSMA/CA — by bundling multiple MSDUs or MPDUs into one large transmission, the
+                        overhead (DIFS, backoff, ACK) is amortized over more data.</li>
+                </ul>
+                <div class="trap-q">Which 802.11 standard introduced channel bonding? → 802.11n (40 MHz = two bonded 20
+                    MHz channels). 802.11ac extended this to 80 and 160 MHz.</div>
+                <div class="trap-q">Does 802.11ac support 2.4 GHz? → No. 802.11ac operates exclusively in the 5 GHz
+                    band. Only 802.11n offers both bands.</div>
+            </div>
+        </section>
+
+        <!-- ══════════════════ SECTION 6: LISTEN BEFORE TALK ══════════════════ -->
+        <section class="sec" id="sec-lbt">
+            <div class="sec-header">
+                <div class="sec-num">06</div>
+                <div class="sec-title-wrap">
+                    <h2>Listen Before Talk — CCA &amp; NAV</h2>
+                    <div class="sec-subtitle">Physical and virtual carrier sensing mechanisms</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📻 Clear Channel Assessment (CCA) — Physical Carrier Sensing</h3>
+                <p>Before any station transmits, it must check whether the channel is idle. This <em>channel sensing
+                        function</em> is called <strong>Clear Channel Assessment (CCA)</strong>. It is the "listen" in
+                    "Listen Before Talk."</p>
+
+                <h4>How CCA Works</h4>
+                <p>CCA measures the power level of the received radio signal. It compares this to a fixed threshold:</p>
+                <ul>
+                    <li><strong>Power threshold: –82 dBm</strong> (this value is implementation-dependent but –82 dBm is
+                        the reference). This is an extremely small amount of power — roughly 6 picowatts — but it is
+                        still detectable by modern RF hardware.</li>
+                    <li>If the received signal power <strong>exceeds –82 dBm</strong> → channel is declared
+                        <strong>BUSY</strong>. The station must not transmit.
+                    </li>
+                    <li>If the received signal power <strong>is below –82 dBm</strong> → channel is declared
+                        <strong>IDLE</strong>. The station may proceed with its backoff countdown.
+                    </li>
+                </ul>
+
+                <h4>Variants of CCA</h4>
+                <p>The slides mention "different variants of CCA." The two primary modes are:</p>
+                <ul>
+                    <li><strong>Energy Detection (ED):</strong> Raw power measurement. Detects <em>any</em> energy above
+                        the threshold, including non-802.11 interference (like a microwave oven). Acts like "ordinary
+                        noise detection."</li>
+                    <li><strong>Carrier Sense (CS) / Preamble Detection:</strong> Looks for the specific 802.11 preamble
+                        in the signal. Only signals from other 802.11 devices trigger a "busy" indication. This is the
+                        "only signals from other 802.11" variant.</li>
+                </ul>
+                <p>In practice, most chipsets implement a combination: energy detection up to some threshold, and
+                    preamble detection below it.</p>
+            </div>
+
+            <div class="card">
+                <h3>⏳ Network Allocation Vector (NAV) — Virtual Carrier Sensing</h3>
+                <p>CCA can only detect transmissions from stations within radio range. It cannot detect ongoing
+                    transmissions between stations that are far away or blocked by obstacles (the hidden terminal
+                    problem). The <strong>NAV</strong> solves part of this problem by providing <em>virtual carrier
+                        sensing</em>.</p>
+
+                <h4>How NAV Works</h4>
+                <p>Every 802.11 frame carries a <strong>Duration/ID field</strong> in its MAC header. This field tells
+                    every station in range how long the current frame exchange sequence (including the response frames
+                    like ACK or CTS) will take.</p>
+                <p>When a station <em>overhears</em> a frame — even if that frame is not addressed to it — it reads the
+                    Duration field and sets its NAV timer to that value. The NAV is a software timer that counts down
+                    independently of the physical channel state.</p>
+
+                <h4>The NAV Rule</h4>
+                <p><strong>A station is forbidden from initiating a new transmission as long as EITHER:</strong></p>
+                <ul>
+                    <li>Its physical CCA senses the channel as busy, OR</li>
+                    <li>Its NAV timer is nonzero (i.e., counting down).</li>
+                </ul>
+                <p>This is the "virtual carrier sensing" aspect — a station "virtually" knows the channel is occupied
+                    even if it cannot physically hear the ongoing transmission.</p>
+            </div>
+
+            <div class="diagram-wrap">
+                <svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg"
+                    style="width:100%;max-width:680px;display:block;margin:0 auto;">
+                    <!-- Timeline -->
+                    <line x1="50" y1="160" x2="660" y2="160" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" />
+                    <text x="660" y="155" fill="rgba(255,255,255,0.4)" font-size="10"
+                        font-family="JetBrains Mono, monospace">time→</text>
+
+                    <!-- Station A timeline label -->
+                    <text x="10" y="65" fill="#76e4f7" font-size="11"
+                        font-family="JetBrains Mono, monospace">STA-A</text>
+                    <!-- Station B (receiver) -->
+                    <text x="10" y="100" fill="#b794f4" font-size="11"
+                        font-family="JetBrains Mono, monospace">STA-B</text>
+                    <!-- Station C (overhears) -->
+                    <text x="10" y="135" fill="#f6ad55" font-size="11"
+                        font-family="JetBrains Mono, monospace">STA-C</text>
+
+                    <!-- RTS from A -->
+                    <rect x="80" y="50" width="60" height="22" rx="4" fill="rgba(99,179,237,0.25)"
+                        stroke="rgba(99,179,237,0.5)" stroke-width="1.2" />
+                    <text x="110" y="65" fill="#63b3ed" text-anchor="middle" font-size="10"
+                        font-family="JetBrains Mono, monospace" font-weight="700">RTS</text>
+
+                    <!-- NAV from RTS for C -->
+                    <rect x="80" y="120" width="440" height="14" rx="3" fill="rgba(246,173,85,0.12)"
+                        stroke="rgba(246,173,85,0.3)" stroke-width="1" stroke-dasharray="4,2" />
+                    <text x="300" y="131" fill="#f6ad55" text-anchor="middle" font-size="9.5"
+                        font-family="JetBrains Mono, monospace">NAV (set from RTS duration field)</text>
+
+                    <!-- SIFS -->
+                    <rect x="140" y="50" width="22" height="22" rx="3" fill="rgba(79,209,199,0.2)"
+                        stroke="rgba(79,209,199,0.4)" stroke-width="1" />
+                    <text x="151" y="65" fill="#4fd1c7" text-anchor="middle" font-size="8"
+                        font-family="JetBrains Mono, monospace">SIFS</text>
+
+                    <!-- CTS from B -->
+                    <rect x="162" y="82" width="60" height="22" rx="4" fill="rgba(183,148,244,0.25)"
+                        stroke="rgba(183,148,244,0.5)" stroke-width="1.2" />
+                    <text x="192" y="97" fill="#b794f4" text-anchor="middle" font-size="10"
+                        font-family="JetBrains Mono, monospace" font-weight="700">CTS</text>
+
+                    <!-- NAV from CTS updates/reinforces -->
+                    <rect x="162" y="120" width="358" height="14" rx="3" fill="rgba(246,173,85,0.08)"
+                        stroke="rgba(246,173,85,0.2)" stroke-width="1" stroke-dasharray="4,2" />
+                    <text x="341" y="131" fill="rgba(246,173,85,0.5)" text-anchor="middle" font-size="8.5"
+                        font-family="JetBrains Mono, monospace">NAV reinforced by CTS</text>
+
+                    <!-- SIFS -->
+                    <rect x="222" y="50" width="22" height="22" rx="3" fill="rgba(79,209,199,0.2)"
+                        stroke="rgba(79,209,199,0.4)" stroke-width="1" />
+                    <text x="233" y="65" fill="#4fd1c7" text-anchor="middle" font-size="8"
+                        font-family="JetBrains Mono, monospace">SIFS</text>
+
+                    <!-- DATA -->
+                    <rect x="244" y="50" width="200" height="22" rx="4" fill="rgba(154,230,180,0.2)"
+                        stroke="rgba(154,230,180,0.4)" stroke-width="1.2" />
+                    <text x="344" y="65" fill="#9ae6b4" text-anchor="middle" font-size="10"
+                        font-family="JetBrains Mono, monospace" font-weight="700">DATA FRAME</text>
+
+                    <!-- SIFS -->
+                    <rect x="444" y="50" width="22" height="22" rx="3" fill="rgba(79,209,199,0.2)"
+                        stroke="rgba(79,209,199,0.4)" stroke-width="1" />
+                    <text x="455" y="65" fill="#4fd1c7" text-anchor="middle" font-size="8"
+                        font-family="JetBrains Mono, monospace">SIFS</text>
+
+                    <!-- ACK -->
+                    <rect x="466" y="82" width="54" height="22" rx="4" fill="rgba(252,129,129,0.22)"
+                        stroke="rgba(252,129,129,0.45)" stroke-width="1.2" />
+                    <text x="493" y="97" fill="#fc8181" text-anchor="middle" font-size="10"
+                        font-family="JetBrains Mono, monospace" font-weight="700">ACK</text>
+
+                    <!-- NAV expires marker -->
+                    <line x1="520" y1="115" x2="520" y2="145" stroke="rgba(246,173,85,0.6)" stroke-width="1.5"
+                        stroke-dasharray="3,2" />
+                    <text x="520" y="155" fill="#f6ad55" text-anchor="middle" font-size="9"
+                        font-family="JetBrains Mono, monospace">NAV=0</text>
+
+                    <!-- Defer arrow for C -->
+                    <text x="300" y="175" fill="rgba(246,173,85,0.7)" text-anchor="middle" font-size="10"
+                        font-family="JetBrains Mono, monospace">← STA-C defers all transmission until NAV expires
+                        →</text>
+                </svg>
+                <div class="diagram-caption">Figure: Virtual Carrier Sensing — STA-C overhears RTS/CTS and sets its NAV
+                    timer, deferring transmission even though it cannot hear the DATA frame from STA-A</div>
+            </div>
+
+            <div class="math-box">
+                <div class="math-label">Key Values — CCA Threshold</div>
+                <div class="math-formula">CCA Threshold = –82 dBm</div>
+                <div class="math-step">
+                    <div class="step-num">!</div><span>This is a power level. In linear terms: P = 10^(–82/10) mW ≈ 6.3
+                        × 10⁻⁹ mW = 6.3 pW (picowatts). Extremely small — modern RF amplifiers can detect this.</span>
+                </div>
+                <div class="math-step">
+                    <div class="step-num">!</div><span>Signal &gt; –82 dBm → BUSY. Signal &lt; –82 dBm → IDLE. A station
+                        with a signal of –80 dBm would consider the channel BUSY.</span>
+                </div>
+            </div>
+
+            <div class="prof-corner">
+                <div class="pc-header">🎓 Professor's Picky Corner — CCA &amp; NAV</div>
+                <ul>
+                    <li><strong>NAV ≠ physical carrier sense.</strong> They are two independent mechanisms. A station
+                        can have CCA=idle but NAV&gt;0 (because it heard a duration field earlier and the ongoing
+                        transmission is from a hidden station). In this case, the station is still forbidden to
+                        transmit.</li>
+                    <li><strong>NAV is triggered by the Duration field, not by the frame type.</strong> Any frame —
+                        DATA, ACK, RTS, CTS — carries a Duration field, and any overhearer will update its NAV
+                        accordingly.</li>
+                    <li><strong>The –82 dBm threshold is "possibly implementation dependent"</strong> — as stated in the
+                        slides. The professor may ask you to state this caveat.</li>
+                </ul>
+                <div class="trap-q">A station has CCA=idle. Can it transmit immediately? → Not necessarily. It must also
+                    check NAV. If NAV &gt; 0, it cannot transmit, even if the channel physically appears idle.</div>
+            </div>
+        </section>
+
+        <!-- ══════════════════ SECTION 7: DCF DEEP DIVE ══════════════════ -->
+        <section class="sec" id="sec-dcf">
+            <div class="sec-header">
+                <div class="sec-num">07</div>
+                <div class="sec-title-wrap">
+                    <h2>DCF Deep Dive — CSMA/CA</h2>
+                    <div class="sec-subtitle">Why collision detection fails in wireless, and how collision avoidance
+                        works</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🚫 Why Collision Detection (CSMA/CD) Doesn't Work in Wireless</h3>
+                <p>In Ethernet (802.3), Collision Detection (CD) works because a station can simultaneously transmit and
+                    listen on the same wire. If its transmitted signal gets corrupted by another station's signal, it
+                    detects the voltage anomaly and stops — saving channel time.</p>
+                <p>In wireless, this is impossible for two fundamental reasons:</p>
+
+                <div class="step-flow">
+                    <div class="step-item">
+                        <div class="step-circle rose">1</div>
+                        <div class="step-body">
+                            <strong>The near-far problem (transmit power dominates)</strong>
+                            <p>When a station is transmitting, its own transmitted signal is enormously stronger than
+                                any incoming signal from a distant station (potentially millions of times stronger in
+                                power). The transmitted signal simply drowns out any received signal at the station's
+                                own antenna. There is no way to "hear" a collision at the receiver while transmitting at
+                                full power.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle rose">2</div>
+                        <div class="step-body">
+                            <strong>The hidden terminal problem</strong>
+                            <p>Even if power weren't an issue, a station may be physically blocked or too far away from
+                                another transmitting station to sense its signal — yet both of their signals may collide
+                                at a third station (the receiver). Since Station A cannot detect Station C's
+                                transmission, it has no way to detect a collision at the receiver. Collision Detection
+                                at the transmitter would be unreliable even if hardware allowed it.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>✅ CSMA/CA: The Solution</h3>
+                <p>Since CD is impossible, 802.11 shifts the strategy from <em>detecting</em> collisions after they
+                    happen to <em>avoiding</em> them before they happen. This is <strong>Carrier Sense Multiple Access
+                        with Collision Avoidance (CSMA/CA)</strong>.</p>
+
+                <p>CSMA/CA has two key components working together:</p>
+
+                <h4>Component 1: Listen Before Talk (CSMA part)</h4>
+                <p>A station must sense the channel before transmitting. If the channel is busy (CCA detects a signal,
+                    or NAV &gt; 0), the station defers — it waits. It does not transmit while the channel is occupied.
+                    This is the carrier sense part.</p>
+
+                <h4>Component 2: Random Backoff (Collision Avoidance part)</h4>
+                <p>Even after sensing the channel as idle for a minimum time (DIFS), a station does not immediately
+                    transmit. Instead, it waits an additional <em>random</em> amount of time (the backoff). By
+                    randomizing the wait time, different stations end up transmitting at different moments, dramatically
+                    reducing the probability of two stations starting at exactly the same instant.</p>
+
+                <h4>Component 3: ARQ (Automatic Repeat reQuest)</h4>
+                <p>Because collisions and channel errors can still occur, 802.11 uses link-layer acknowledgments (ACKs).
+                    After every unicast data frame, the receiver must send an ACK. If the sender does not receive an ACK
+                    within a timeout, it assumes the frame was lost and retransmits. This is Automatic Repeat reQuest
+                    (ARQ) — specifically Stop-and-Wait ARQ at the link layer. The need for ACKs stems from the
+                    <strong>high bit error rates</strong> in wireless channels due to fading, interference, and noise.
+                </p>
+            </div>
+
+            <div class="insight">
+                <div class="ib-label">💡 Why ARQ is critical in wireless but less critical in wired</div>
+                <p>Wired Ethernet has bit error rates (BER) on the order of 10⁻¹² or better. The probability of a frame
+                    being corrupted is negligible. In wireless, BER can be as high as 10⁻³ or worse due to multipath
+                    fading, interference, and signal attenuation. For a 1000-byte frame, a BER of 10⁻³ means a per-frame
+                    error probability of about 1 – (1–10⁻³)^8000 ≈ 1 – e⁻⁸ ≈ 99.97%. Without ARQ, almost no data would
+                    be reliably delivered. With ARQ, the MAC layer handles retransmission transparently so that higher
+                    layers see a reliable channel.</p>
+            </div>
+
+            <div class="prof-corner">
+                <div class="pc-header">🎓 Professor's Picky Corner — DCF / CSMA/CA</div>
+                <ul>
+                    <li><strong>CSMA/CA does NOT eliminate collisions — it only reduces their probability.</strong> Two
+                        stations can still pick the same random backoff value and collide. The exponential backoff
+                        mechanism addresses repeated collisions.</li>
+                    <li><strong>ACKs in 802.11 are for link-layer reliability, NOT for collision detection.</strong> The
+                        lack of ACK tells the transmitter that its frame was either lost (collision) or corrupted
+                        (channel error). It cannot distinguish between the two.</li>
+                    <li><strong>The hidden terminal problem is why CSMA alone is insufficient.</strong> If station A and
+                        station C both sense the channel idle (they can't hear each other), but both want to send to
+                        station B, they can still collide at B. The RTS/CTS mechanism (covered later) is the specific
+                        counter-measure.</li>
+                </ul>
+                <div class="trap-q">Why does 802.11 use CSMA/CA instead of CSMA/CD? Give TWO specific reasons. → (1) A
+                    transmitting station cannot sense collisions because its own transmitted signal overwhelms any
+                    received signal. (2) The hidden terminal problem means not all stations can sense each other's
+                    transmissions, making collision detection at the transmitter unreliable.</div>
+            </div>
+        </section>
+
+        <!-- ══════════════════ SECTION 8: IFS ══════════════════ -->
+        <section class="sec" id="sec-ifs">
+            <div class="sec-header">
+                <div class="sec-num">08</div>
+                <div class="sec-title-wrap">
+                    <h2>Interframe Spaces — SIFS, PIFS, DIFS, EIFS</h2>
+                    <div class="sec-subtitle">The timing hierarchy that creates priority levels in 802.11</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>⏱️ What is an Interframe Space (IFS)?</h3>
+                <p>An <strong>Interframe Space (IFS)</strong> is the mandatory minimum idle time that must pass between
+                    consecutive MAC frames. No station may begin transmitting during this silence period. The IFS exists
+                    for several reasons:</p>
+                <ul>
+                    <li><strong>Transceiver turnaround time:</strong> A radio cannot instantly switch from receive mode
+                        to transmit mode. A minimum settling time is needed.</li>
+                    <li><strong>Propagation delay accommodation:</strong> To ensure that all stations in the BSS have
+                        had time to sense the previous transmission ending.</li>
+                    <li><strong>Priority differentiation:</strong> By defining different IFS lengths, 802.11 creates a
+                        priority hierarchy for medium access. <em>Shorter IFS = higher priority</em>.</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>🔩 aSlotTime — The Building Block</h3>
+                <p>All IFS values are derived from two fundamental constants: <strong>SIFS</strong> and
+                    <strong>aSlotTime</strong>. aSlotTime is the base unit of time used in the backoff algorithm and IFS
+                    calculations.
+                </p>
+                <div class="math-box">
+                    <div class="math-label">aSlotTime for 802.11a</div>
+                    <div class="math-formula">aSlotTime = 9 µs</div>
+                    <div class="math-step">
+                        <div class="step-num">!</div><span>aSlotTime accounts for: propagation delay (round-trip within
+                            the BSS) + CCA detection time + MAC processing time + transmitter PHY delay. For 802.11b,
+                            aSlotTime = 20 µs. For 802.11g (legacy mode), aSlotTime = 20 µs.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3 style="color:var(--accent-emerald);">⚡ SIFS — Short Interframe Space</h3>
+                    <p><strong>Value (802.11a): 16 µs</strong></p>
+                    <p>SIFS is the <em>shortest</em> IFS and therefore carries the <em>highest priority</em>. Any frame
+                        sent after a SIFS gap will preempt any station waiting for a DIFS or PIFS gap.</p>
+                    <p><strong>When is SIFS used?</strong></p>
+                    <ul>
+                        <li>After receiving a DATA frame → sending the <strong>ACK</strong></li>
+                        <li>After receiving an RTS → sending the <strong>CTS</strong></li>
+                        <li>After receiving a CTS → sending <strong>DATA</strong></li>
+                        <li>Fragmented MSDUs — between successive fragments</li>
+                        <li>PCF responses to polling</li>
+                    </ul>
+                    <p>The logic is: SIFS is too short for CCA (carrier sense can't complete), so it is only used for
+                        immediate, known responses. The sender of an ACK knows it needs to respond — it doesn't need to
+                        compete for the channel.</p>
+                </div>
+
+                <div class="card">
+                    <h3 style="color:var(--accent-violet);">📊 PIFS — PCF Interframe Space</h3>
+                    <p><strong>Value (802.11a): 25 µs = SIFS + aSlotTime = 16 + 9</strong></p>
+                    <p>PIFS is used by the <strong>Point Coordinator (PCF)</strong> to gain priority channel access over
+                        regular DCF stations, but without being able to interrupt an already-ongoing SIFS-based
+                        exchange. By waiting only PIFS (less than DIFS), the PC can seize the channel before any
+                        contending DCF station (which must wait DIFS).</p>
+                    <div class="math-box">
+                        <div class="math-label">Formula</div>
+                        <div class="math-formula">PIFS = SIFS + aSlotTime = 16 + 9 = 25 µs</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="color:var(--accent-primary);">📡 DIFS — DCF Interframe Space</h3>
+                    <p><strong>Value (802.11a): 34 µs = SIFS + 2 × aSlotTime = 16 + 18</strong></p>
+                    <p>DIFS is used by all stations operating under the <strong>DCF</strong> (which is all stations,
+                        since DCF is mandatory). It is the standard wait time before a station may attempt medium access
+                        through the backoff mechanism.</p>
+                    <div class="math-box">
+                        <div class="math-label">Formula</div>
+                        <div class="math-formula">DIFS = SIFS + 2 × aSlotTime = 16 + 18 = 34 µs</div>
+                    </div>
+                    <p>The extra 2 slot times (compared to PIFS) ensure that the CCA has enough time to complete and
+                        confirm the channel is truly idle before starting the backoff counter.</p>
+                </div>
+
+                <div class="card">
+                    <h3 style="color:var(--accent-amber);">⚠️ EIFS — Extended Interframe Space</h3>
+                    <p><strong>Value (802.11a): ≈ 200 µs</strong></p>
+                    <p>EIFS replaces DIFS when a frame has been received with an error (bad FCS). It represents the
+                        <em>longest</em> deferral time and therefore the <em>lowest</em> priority for channel access.
+                    </p>
+                    <p><strong>Why is EIFS longer?</strong> When a station receives a garbled frame, it doesn't know
+                        what's happening on the channel. It might be that hidden stations are in the middle of an
+                        exchange. By waiting a full EIFS before competing, the station gives other ongoing exchanges
+                        time to complete. Once any single subsequent frame is received correctly, the station reverts to
+                        using DIFS.</p>
+                </div>
+            </div>
+
+            <!-- IFS Priority Visualization -->
+            <div class="diagram-wrap">
+                <svg viewBox="0 0 680 160" xmlns="http://www.w3.org/2000/svg"
+                    style="width:100%;max-width:680px;display:block;margin:0 auto;">
+                    <!-- Busy channel block -->
+                    <rect x="30" y="60" width="90" height="40" rx="5" fill="rgba(100,100,120,0.35)"
+                        stroke="rgba(255,255,255,0.15)" stroke-width="1" />
+                    <text x="75" y="84" fill="rgba(255,255,255,0.5)" text-anchor="middle" font-size="11"
+                        font-family="JetBrains Mono, monospace">BUSY</text>
+
+                    <!-- Baseline -->
+                    <line x1="120" y1="100" x2="650" y2="100" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+
+                    <!-- SIFS bar -->
+                    <rect x="120" y="85" width="30" height="15" rx="2" fill="rgba(79,209,199,0.4)"
+                        stroke="rgba(79,209,199,0.6)" stroke-width="1" />
+                    <text x="135" y="113" fill="#4fd1c7" text-anchor="middle" font-size="9.5"
+                        font-family="JetBrains Mono, monospace">SIFS</text>
+                    <text x="135" y="125" fill="rgba(79,209,199,0.6)" text-anchor="middle" font-size="8.5"
+                        font-family="JetBrains Mono, monospace">16µs</text>
+                    <text x="135" y="140" fill="rgba(79,209,199,0.5)" text-anchor="middle" font-size="8"
+                        font-family="JetBrains Mono, monospace">HIGHEST PRIORITY</text>
+
+                    <!-- PIFS bar -->
+                    <rect x="120" y="70" width="50" height="15" rx="2" fill="rgba(183,148,244,0.35)"
+                        stroke="rgba(183,148,244,0.6)" stroke-width="1" />
+                    <text x="195" y="113" fill="#b794f4" text-anchor="middle" font-size="9.5"
+                        font-family="JetBrains Mono, monospace">PIFS</text>
+                    <text x="195" y="125" fill="rgba(183,148,244,0.6)" text-anchor="middle" font-size="8.5"
+                        font-family="JetBrains Mono, monospace">25µs</text>
+                    <text x="195" y="140" fill="rgba(183,148,244,0.5)" text-anchor="middle" font-size="8"
+                        font-family="JetBrains Mono, monospace">PCF PRIORITY</text>
+
+                    <!-- DIFS bar -->
+                    <rect x="120" y="55" width="70" height="15" rx="2" fill="rgba(99,179,237,0.35)"
+                        stroke="rgba(99,179,237,0.6)" stroke-width="1" />
+                    <text x="255" y="113" fill="#63b3ed" text-anchor="middle" font-size="9.5"
+                        font-family="JetBrains Mono, monospace">DIFS</text>
+                    <text x="255" y="125" fill="rgba(99,179,237,0.6)" text-anchor="middle" font-size="8.5"
+                        font-family="JetBrains Mono, monospace">34µs</text>
+                    <text x="255" y="140" fill="rgba(99,179,237,0.5)" text-anchor="middle" font-size="8"
+                        font-family="JetBrains Mono, monospace">DCF ACCESS</text>
+
+                    <!-- EIFS bar -->
+                    <rect x="120" y="40" width="230" height="15" rx="2" fill="rgba(246,173,85,0.25)"
+                        stroke="rgba(246,173,85,0.5)" stroke-width="1" />
+                    <text x="375" y="113" fill="#f6ad55" text-anchor="middle" font-size="9.5"
+                        font-family="JetBrains Mono, monospace">EIFS</text>
+                    <text x="375" y="125" fill="rgba(246,173,85,0.6)" text-anchor="middle" font-size="8.5"
+                        font-family="JetBrains Mono, monospace">~200µs</text>
+                    <text x="375" y="140" fill="rgba(246,173,85,0.5)" text-anchor="middle" font-size="8"
+                        font-family="JetBrains Mono, monospace">LOWEST PRIORITY</text>
+
+                    <!-- SIFS = slot label -->
+                    <text x="450" y="30" fill="rgba(255,255,255,0.3)" font-size="9.5"
+                        font-family="JetBrains Mono, monospace">SIFS=16µs | slot=9µs</text>
+                    <text x="450" y="48" fill="rgba(255,255,255,0.3)" font-size="9.5"
+                        font-family="JetBrains Mono, monospace">PIFS = SIFS + slot</text>
+                    <text x="450" y="66" fill="rgba(255,255,255,0.3)" font-size="9.5"
+                        font-family="JetBrains Mono, monospace">DIFS = SIFS + 2×slot</text>
+
+                    <text x="30" y="35" fill="rgba(255,255,255,0.5)" font-size="10"
+                        font-family="JetBrains Mono, monospace">← shorter = higher priority</text>
+                </svg>
+                <div class="diagram-caption">Figure: IFS Priority Hierarchy — All intervals begin at the end of the BUSY
+                    period. SIFS expires first, giving ACK/CTS highest priority. DIFS expires last among the active
+                    contenders, giving DCF stations lower priority than PCF.</div>
+            </div>
+
+            <div class="math-box">
+                <div class="math-label">Complete IFS Math — 802.11a Reference Values</div>
+                <div class="math-formula">aSlotTime = 9 µs</div>
+                <div class="math-step">
+                    <div class="step-num">1</div><span>SIFS = 16 µs (fixed, hardware-determined for 802.11a)</span>
+                </div>
+                <div class="math-step">
+                    <div class="step-num">2</div><span>PIFS = SIFS + aSlotTime = 16 + 9 = <strong
+                            style="color:#b794f4;">25 µs</strong></span>
+                </div>
+                <div class="math-step">
+                    <div class="step-num">3</div><span>DIFS = SIFS + 2 × aSlotTime = 16 + 2(9) = 16 + 18 = <strong
+                            style="color:#63b3ed;">34 µs</strong></span>
+                </div>
+                <div class="math-step">
+                    <div class="step-num">4</div><span>EIFS ≈ 200 µs for 802.11a (exact value depends on ACK
+                        transmission time + SIFS + DIFS)</span>
+                </div>
+                <div class="math-result">Hierarchy: SIFS (16µs) &lt; PIFS (25µs) &lt; DIFS (34µs) &lt;&lt; EIFS (~200µs)
+                </div>
+            </div>
+
+            <div class="prof-corner">
+                <div class="pc-header">🎓 Professor's Picky Corner — IFS</div>
+                <ul>
+                    <li><strong>SIFS does NOT involve CCA.</strong> The slide explicitly states this. SIFS is too short
+                        for the CCA mechanism to complete. It is only used for immediate, pre-determined responses (ACK,
+                        CTS) where no channel sensing is needed because the responder already "knows" it's supposed to
+                        respond.</li>
+                    <li><strong>All IFS values are independent of the channel data rate.</strong> This is explicitly
+                        stated in the slides. SIFS = 16 µs at 54 Mbps and also at 6 Mbps for 802.11a. The IFS is a time
+                        domain value determined by PHY layer processing delays, not by data rate.</li>
+                    <li>The statement "shorter IFS = higher priority" is the core concept. If you can explain WHY this
+                        creates priority (the shorter-waiting station transmits first, and once it starts, other
+                        stations sense the channel as busy and defer), you have fully understood it.</li>
+                    <li><strong>EIFS is ≈ 200µs</strong> — the professor may ask for the exact formula:
+                        <code>EIFS = SIFS + ACK_TX_time + DIFS</code>. The ACK transmission time depends on the data
+                        rate, which is why an exact universal value isn't given.
+                    </li>
+                </ul>
+                <div class="trap-q">If SIFS = 16 µs and aSlotTime = 9 µs, what is DIFS? Show your work. → DIFS = SIFS +
+                    2 × aSlotTime = 16 + 2(9) = 16 + 18 = 34 µs</div>
+                <div class="trap-q">Why is SIFS used before sending an ACK instead of DIFS? → Because the ACK has the
+                    highest priority — it must arrive before any other station can re-seize the channel. SIFS is so
+                    short that no other station's DIFS or PIFS can expire first, guaranteeing the ACK gets through.
+                    Also, SIFS is too short for CCA, but an ACK doesn't need CCA — the responding station knows exactly
+                    when it should respond.</div>
+            </div>
+        </section>
+
+        <!-- ══════════════════ SECTION 9: FRAME EXCHANGE TIMING ══════════════════ -->
+        <section class="sec" id="sec-timing">
+            <div class="sec-header">
+                <div class="sec-num">09</div>
+                <div class="sec-title-wrap">
+                    <h2>Frame Exchange Timing Scenarios</h2>
+                    <div class="sec-subtitle">The three retransmission scenarios shown in slides 13–15</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📋 MSDU vs MPDU — A Quick Terminology Note</h3>
+                <p>The slides talk about <strong>MSDU delivery attempts</strong>. It's important to understand the
+                    terminology:</p>
+                <ul>
+                    <li><strong>MSDU (MAC Service Data Unit)</strong>: The data payload handed down to the MAC layer
+                        from the upper layer (IP datagram, etc.). This is what the user wants to send.</li>
+                    <li><strong>MPDU (MAC Protocol Data Unit)</strong>: The MSDU plus MAC headers, framing, and FCS.
+                        This is what actually gets transmitted over the air as a "frame."</li>
+                    <li><strong>MSDU Delivery Attempt:</strong> One attempt to deliver an MSDU by transmitting its
+                        corresponding MPDU (DATA frame).</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>🔄 Scenario 1: First Unsuccessful MSDU Delivery Attempt</h3>
+                <p>Station 1 transmits a DATA frame. The frame is <strong>not received</strong> by Station 2 (perhaps
+                    due to a collision or deep fade). Since Station 2 never received the DATA frame, it sends <strong>no
+                        ACK</strong>. Station 1 waits for the ACK timeout, receives nothing, and concludes: the frame
+                    was lost.</p>
+
+                <div class="timing-strip">
+                    <div class="ts-block ts-busy" style="min-width:50px;">Previous<br>Exchange</div>
+                    <div class="ts-block ts-difs" style="min-width:40px;">DIFS+<br>Backoff</div>
+                    <div class="ts-block ts-data" style="min-width:80px;">DATA→<br>(LOST ✗)</div>
+                    <div class="ts-block ts-ack" style="min-width:70px;">ACK Timeout<br>(No ACK)</div>
+                    <div class="ts-block ts-difs" style="min-width:50px;">DIFS+<br>New Backoff</div>
+                    <div class="ts-block ts-data" style="min-width:80px;">DATA (2nd<br>attempt)</div>
+                </div>
+                <p style="font-size:12.5px;color:var(--text-body);margin-top:8px;">After the ACK timeout expires,
+                    Station 1 doubles its contention window (binary exponential backoff) and starts a new backoff
+                    countdown before the 2nd attempt.</p>
+            </div>
+
+            <div class="card">
+                <h3>🔄 Scenario 2: Second Unsuccessful MSDU Delivery Attempt</h3>
+                <p>On the 2nd attempt, Station 1 retransmits the DATA frame. This time, Station 2 <strong>does receive
+                        it correctly</strong> and sends an ACK. However, the ACK is <strong>lost</strong> (e.g., due to
+                    interference on the return path). Station 1 never receives the ACK and assumes the frame was lost
+                    again.</p>
+                <p>From Station 2's perspective, it has successfully received the data. But Station 1 doesn't know this.
+                    This is a key issue: <strong>Station 2 must keep track of sequence numbers to detect duplicate
+                        frames</strong> when Station 1 retransmits.</p>
+
+                <div class="timing-strip">
+                    <div class="ts-block ts-data" style="min-width:80px;">DATA<br>(2nd attempt)</div>
+                    <div class="ts-block ts-sifs" style="min-width:35px;">SIFS</div>
+                    <div class="ts-block ts-ack" style="min-width:80px;">ACK sent<br>(LOST ✗)</div>
+                    <div class="ts-block ts-busy" style="min-width:60px;">ACK Timeout<br>at Stn 1</div>
+                    <div class="ts-block ts-difs" style="min-width:50px;">DIFS+<br>Backoff×2</div>
+                    <div class="ts-block ts-data" style="min-width:80px;">DATA (3rd<br>attempt)</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>✅ Scenario 3: Third (Successful) MSDU Delivery Attempt</h3>
+                <p>On the 3rd attempt, both the DATA frame and the ACK are successfully transmitted and received. The
+                    delivery is complete. Station 1 resets its retry counter and contention window back to CWmin.</p>
+
+                <div class="timing-strip">
+                    <div class="ts-block ts-difs" style="min-width:50px;">DIFS+<br>Backoff×3</div>
+                    <div class="ts-block ts-data" style="min-width:80px;">DATA<br>(3rd attempt)</div>
+                    <div class="ts-block ts-sifs" style="min-width:35px;">SIFS</div>
+                    <div class="ts-block ts-ack" style="min-width:60px;">ACK ✓</div>
+                    <div class="ts-block ts-busy" style="min-width:80px;">DELIVERY<br>COMPLETE ✓</div>
+                </div>
+            </div>
+
+            <div class="insight">
+                <div class="ib-label">💡 Key Insight — The Retry Mechanism</div>
+                <p>The slides show that between each attempt, there is an additional DIFS + new random backoff period.
+                    This is not just "waiting" — with each failed attempt, the Contention Window (CW) is doubled. So the
+                    2nd attempt has a potentially wider random backoff than the 1st, and the 3rd is wider still. This is
+                    binary exponential backoff — designed to spread competing stations further apart in time as
+                    congestion increases.</p>
+            </div>
+
+            <div class="prof-corner">
+                <div class="pc-header">🎓 Professor's Picky Corner — Frame Exchange Scenarios</div>
+                <ul>
+                    <li><strong>In Scenario 2, the data WAS successfully received by Station 2.</strong> Only the ACK
+                        was lost. Station 2 will receive the same MSDU again in Scenario 3 — it will discard the
+                        duplicate because the frame's Retry bit and Sequence Number identify it as a retransmission. The
+                        MAC layer handles duplicate removal transparently.</li>
+                    <li>The diagram uses ① ② ③ markers. ① = first attempt (no ACK received). ② = second attempt (ACK
+                        lost). ③ = third attempt (success). The professor may ask you to draw this timeline precisely.
+                    </li>
+                    <li>The gap between attempt ① and ② is not instantaneous — there is an <strong>ACK Timeout
+                            interval</strong>, then a new DIFS + backoff. The gap between ② and ③ is also DIFS +
+                        (doubled) backoff.</li>
+                </ul>
+                <div class="trap-q">In Scenario 2, did Station 2 successfully receive the MSDU? → Yes. Station 2
+                    received the DATA correctly and sent an ACK. But the ACK was lost in transit. Station 2 will receive
+                    a duplicate in the 3rd attempt and discard it using sequence numbers.</div>
+            </div>
+        </section>
+
+        <!-- ══════════════════ SECTION 10: COLLISION AVOIDANCE & BACKOFF ══════════════════ -->
+        <section class="sec" id="sec-ca">
+            <div class="sec-header">
+                <div class="sec-num">10</div>
+                <div class="sec-title-wrap">
+                    <h2>Collision Avoidance &amp; the Backoff Procedure</h2>
+                    <div class="sec-subtitle">The mechanics of how stations avoid transmitting simultaneously</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🎯 What is a Collision?</h3>
+                <p>A <strong>collision</strong> occurs when two or more stations begin transmitting at the same time on
+                    the same channel. Their signals mix in the air (superposition), and the resulting composite waveform
+                    cannot be decoded by the receiver. Both frames are lost — neither is received correctly. This is the
+                    fundamental challenge that the CA mechanism addresses.</p>
+                <p>In wireless, collisions happen even when all stations are playing by the rules. Why? Because two
+                    stations can independently sense the channel as "idle" (e.g., after the DIFS period ends) at
+                    <em>exactly</em> the same moment and both start transmitting. The backoff's job is to reduce the
+                    probability of this synchronized timing.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>🎲 The Backoff Procedure — A Step-by-Step Walkthrough</h3>
+
+                <div class="step-flow">
+                    <div class="step-item">
+                        <div class="step-circle blue">1</div>
+                        <div class="step-body">
+                            <strong>Sense the channel</strong>
+                            <p>A station with a frame to send first checks the channel using CCA and NAV. If the channel
+                                is busy, it waits and keeps monitoring.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle cyan">2</div>
+                        <div class="step-body">
+                            <strong>Wait for DIFS after channel goes idle</strong>
+                            <p>Once the channel appears idle (CCA=idle AND NAV=0), the station does NOT immediately
+                                transmit. It waits a mandatory DIFS = 34 µs (for 802.11a). Only after the DIFS expires
+                                can it proceed.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle violet">3</div>
+                        <div class="step-body">
+                            <strong>Select a random backoff counter</strong>
+                            <p>The station randomly selects an integer r from [0, CW], where CW is the current
+                                Contention Window. The backoff duration is then: <code>Backoff = r × aSlotTime</code>.
+                                For a first-time transmission, CW = CWmin = 16 - 1 = 15 (for 802.11a), so r ∈ [0, 15].
+                            </p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle emerald">4</div>
+                        <div class="step-body">
+                            <strong>Count down the backoff timer</strong>
+                            <p>The station counts down r slots. <em>The countdown continues only while the channel is
+                                    idle.</em> If the channel becomes busy (another station started transmitting), the
+                                countdown freezes at its current value. Once the channel is idle again for a DIFS, the
+                                countdown resumes from where it left off.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle amber">5</div>
+                        <div class="step-body">
+                            <strong>Transmit when backoff reaches zero</strong>
+                            <p>When the backoff counter reaches zero, the station transmits its first frame (RTS, if
+                                using RTS/CTS, or directly DATA if not). It has "won" the contention.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle lime">6</div>
+                        <div class="step-body">
+                            <strong>Stations that lost contention "resume, not restart"</strong>
+                            <p>Stations that had to freeze their countdown due to step 4 <em>resume counting down</em>
+                                after the channel becomes idle again. They do NOT pick a new random number. This gives
+                                priority to stations that have been waiting longer — their counters are lower (closer to
+                                zero).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="insight">
+                <div class="ib-label">💡 Why "Resume, Not Restart" Creates Fairness</div>
+                <p>Imagine Station A has a backoff of 3 remaining, and Station B (which just finished transmitting)
+                    picks a new random backoff of 15. When the channel goes idle after Station B's frame, Station A only
+                    has to count down 3 more slots while Station B counts down 15. Station A wins the next contention,
+                    effectively giving priority to stations that have been waiting longer. This prevents starvation.</p>
+            </div>
+
+            <div class="prof-corner">
+                <div class="pc-header">🎓 Professor's Picky Corner — Backoff</div>
+                <ul>
+                    <li><strong>The backoff countdown freezes (does not reset) when the channel goes busy.</strong> This
+                        is the most commonly misunderstood aspect. A station that has already been waiting doesn't lose
+                        its progress.</li>
+                    <li><strong>A station must ALWAYS perform a backoff</strong>, even if it's the only station with
+                        data to send and the channel was idle for DIFS. The standard requires a backoff after every DIFS
+                        period before initial transmission.</li>
+                    <li>The backoff counter counts slots (9 µs each), not absolute time. This uniformity ensures that
+                        all stations have the same resolution in their random competition.</li>
+                </ul>
+                <div class="trap-q">Station X has a remaining backoff of 5 slots. The channel suddenly goes busy
+                    (another station wins). What happens to Station X's backoff counter? → It freezes at 5 slots. When
+                    the channel becomes idle again (and DIFS expires), Station X resumes counting down from 5, not from
+                    a new random value.</div>
+            </div>
+        </section>
+
+        <!-- ══════════════════ SECTION 11: CONTENTION WINDOW & BEB ══════════════════ -->
+        <section class="sec" id="sec-cw">
+            <div class="sec-header">
+                <div class="sec-num">11</div>
+                <div class="sec-title-wrap">
+                    <h2>Contention Window &amp; Binary Exponential Backoff</h2>
+                    <div class="sec-subtitle">How CW doubles after each failure, and the math behind it</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📐 The Contention Window (CW) Formula</h3>
+                <p>The Contention Window is the range from which the random backoff value is chosen:
+                    <code>r ∈ [0, CW]</code>. A larger CW means the station will wait longer on average before
+                    transmitting, reducing collision probability at the cost of higher latency.
+                </p>
+
+                <div class="math-box">
+                    <div class="math-label">CW Formula — IEEE 802.11</div>
+                    <div class="math-formula">CW = min( 2^(n−1) × CWmin − 1, CWmax )</div>
+                    <div class="math-step">
+                        <div class="step-num">!</div><span>where n = transmission attempt number (1, 2, 3, ...) and
+                            CWmin/CWmax are standard-defined constants.</span>
+                    </div>
+                    <div class="math-step">
+                        <div class="step-num">!</div><span><strong>For 802.11a:</strong> CWmin = 16, CWmax = 1024</span>
+                    </div>
+                    <div class="math-step">
+                        <div class="step-num">!</div><span><strong>So CW starts at:</strong> n=1: 2^0 × 16 − 1 = 1 × 16
+                            − 1 = <strong style="color:#76e4f7;">15</strong></span>
+                    </div>
+                </div>
+
+                <p>The <strong>Random Backoff Count r</strong> is chosen uniformly at random from [0, CW]:</p>
+                <div class="math-box">
+                    <div class="math-label">Backoff Duration</div>
+                    <div class="math-formula">Backoff Duration = r × aSlotTime</div>
+                    <div class="math-step">
+                        <div class="step-num">!</div><span>r = integer randomly chosen from [0, CW]</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📈 Binary Exponential Backoff — CW Doubling After Each Failure</h3>
+                <p>After each failed transmission attempt (no ACK received = collision or error assumed), the Contention
+                    Window is doubled. This is called <strong>Binary Exponential Backoff (BEB)</strong>.</p>
+                <p><strong>The logic:</strong> If a collision occurred, it means multiple stations were competing. A
+                    wider CW spreads these stations further apart in time, making it less likely they'll collide again.
+                    The more collisions occur, the more congested the channel, and the wider the CW should be to avoid
+                    further collisions.</p>
+
+                <table class="comp-table">
+                    <thead>
+                        <tr>
+                            <th>Attempt # (n)</th>
+                            <th>CW Formula: 2^(n-1) × CWmin - 1</th>
+                            <th>CW Value</th>
+                            <th>Max Backoff</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="td-label">1st attempt</td>
+                            <td>2^0 × 16 − 1 = 1×16 − 1</td>
+                            <td class="td-good">15</td>
+                            <td>15 × 9µs = 135 µs</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">2nd attempt</td>
+                            <td>2^1 × 16 − 1 = 2×16 − 1</td>
+                            <td class="td-mid">31</td>
+                            <td>31 × 9µs = 279 µs</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">3rd attempt</td>
+                            <td>2^2 × 16 − 1 = 4×16 − 1</td>
+                            <td class="td-mid">63</td>
+                            <td>63 × 9µs = 567 µs</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">4th attempt</td>
+                            <td>2^3 × 16 − 1 = 8×16 − 1</td>
+                            <td class="td-mid">127</td>
+                            <td>127 × 9µs = 1143 µs</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">5th attempt</td>
+                            <td>2^4 × 16 − 1 = 16×16 − 1</td>
+                            <td class="td-bad">255</td>
+                            <td>255 × 9µs = 2295 µs</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">7th attempt</td>
+                            <td>min(2^6 × 16 − 1, 1024) = min(1023, 1024)</td>
+                            <td class="td-bad">1023</td>
+                            <td>capped near CWmax</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">n ≥ 7</td>
+                            <td>min(..., 1024) = 1023 (capped)</td>
+                            <td class="td-bad">1023</td>
+                            <td>Maximum backoff — stays here</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="warn-box">
+                    <strong>⚠️ Careful with the formula!</strong> The slides write the formula as
+                    <code>CW = min(2^(n-1) × CWmin − 1, CWmax)</code>. Some textbooks write it differently as
+                    <code>CW(n) = min(2^n × CWmin − 1, CWmax)</code> with n starting from 0. Make sure to use exactly
+                    the formula as given in YOUR slides when answering exam questions.
+                </div>
+            </div>
+
+            <div class="math-box">
+                <div class="math-label">Worked Example — Full Backoff Calculation</div>
+                <p style="font-size:12px;color:var(--text-body);margin-bottom:10px;">Given: 802.11a, CWmin=16,
+                    CWmax=1024, aSlotTime=9µs. A station is on its 3rd attempt (2 previous failures). Suppose it
+                    randomly selects r=7. Calculate the backoff.</p>
+                <div class="math-step">
+                    <div class="step-num">1</div><span>n = 3 (3rd attempt). CW = min(2^(3-1) × 16 − 1, 1024) = min(4 ×
+                        16 − 1, 1024) = min(63, 1024) = <strong style="color:#76e4f7;">63</strong></span>
+                </div>
+                <div class="math-step">
+                    <div class="step-num">2</div><span>r is chosen uniformly from [0, 63]. Suppose r = 7 (as in the
+                        slides).</span>
+                </div>
+                <div class="math-step">
+                    <div class="step-num">3</div><span>Backoff Duration = r × aSlotTime = 7 × 9 µs = <strong
+                            style="color:#4fd1c7;">63 µs</strong></span>
+                </div>
+                <div class="math-result">The station waits 63 µs (7 slots) before transmitting its 3rd attempt, after a
+                    DIFS of 34 µs.</div>
+            </div>
+
+            <div class="prof-corner">
+                <div class="pc-header">🎓 Professor's Picky Corner — CW &amp; BEB</div>
+                <ul>
+                    <li><strong>CW caps at CWmax (1023 for 802.11a).</strong> It does NOT grow indefinitely. After the
+                        cap is reached, further failures don't change CW. However, most implementations have a retry
+                        limit — after ~7 failures, the frame is dropped and reported as an error to the upper layer.
+                    </li>
+                    <li><strong>After a SUCCESSFUL transmission, CW resets to CWmin-1 = 15.</strong> The doubling only
+                        applies to failures.</li>
+                    <li>The slide states: "At 10 active nodes, probability of at least two nodes choosing the same slot
+                        exceeds 40%." This is a quantitative metric the professor may test. It illustrates why the
+                        overhead (backoff channel wastage) can be severe under load.</li>
+                    <li>The <strong>CW includes zero</strong>. r can be 0, meaning the station picks zero backoff and
+                        transmits immediately after DIFS. This is why collisions still happen even with backoff — two
+                        stations can both pick r=0.</li>
+                </ul>
+                <div class="trap-q">What is the maximum possible backoff (in microseconds) in 802.11a? → CW = min(2^n ×
+                    CWmin − 1, 1024) caps at CWmax = 1023 slots. Backoff = 1023 × 9 µs = 9207 µs ≈ 9.2 ms.</div>
+                <div class="trap-q">After a successful frame exchange, a station wants to send another frame. What CW
+                    does it use for the new backoff? → CWmin − 1 = 15. The CW always resets to the minimum after a
+                    successful delivery.</div>
+            </div>
+        </section>
+
+        <!-- ══════════════════ SECTION 12: RTS/CTS ══════════════════ -->
+        <section class="sec" id="sec-rtscts">
+            <div class="sec-header">
+                <div class="sec-num">12</div>
+                <div class="sec-title-wrap">
+                    <h2>RTS/CTS — Request to Send / Clear to Send</h2>
+                    <div class="sec-subtitle">Virtual channel reservation to protect long data frames</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🛡️ The Core Idea: Reserve Before Transmit</h3>
+                <p>The primary motivation for RTS/CTS is to protect <strong>long data frames</strong> from being
+                    destroyed by collisions. Consider: if a 1500-byte data frame collides (a rare event), the entire
+                    channel time for that long frame is wasted. With RTS/CTS, the station first sends a tiny RTS frame
+                    (only ~20 bytes). If that RTS collides, only a tiny amount of channel time is wasted — and no
+                    valuable data has been lost.</p>
+                <p>RTS/CTS effectively <strong>reserves the channel</strong> for the duration of the upcoming data
+                    exchange before the actual data is transmitted.</p>
+            </div>
+
+            <div class="card">
+                <h3>📜 The RTS/CTS Exchange Sequence</h3>
+                <div class="step-flow">
+                    <div class="step-item">
+                        <div class="step-circle blue">1</div>
+                        <div class="step-body">
+                            <strong>Station A: DIFS + Backoff, then send RTS</strong>
+                            <p>After winning the backoff contention, Station A sends a small RTS (Request To Send) frame
+                                to its intended recipient (Station B / AP). The RTS contains the Duration field: how
+                                long the entire RTS+SIFS+CTS+SIFS+DATA+SIFS+ACK sequence will take.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle cyan">2</div>
+                        <div class="step-body">
+                            <strong>All other stations: Set NAV from RTS duration</strong>
+                            <p>Any station in range of Station A overhears the RTS. It reads the Duration field and sets
+                                its NAV timer accordingly. These stations now defer for the duration of the upcoming
+                                exchange — even though they cannot hear Station B's CTS or the data exchange that
+                                follows.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle violet">3</div>
+                        <div class="step-body">
+                            <strong>Station B: SIFS, then send CTS</strong>
+                            <p>Station B receives the RTS and responds after a SIFS with a CTS (Clear To Send). The CTS
+                                also contains a Duration field (slightly shorter than the RTS's Duration, by the time
+                                used for CTS transmission). The CTS is broadcast — all stations in range of B can hear
+                                it.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle emerald">4</div>
+                        <div class="step-body">
+                            <strong>Hidden stations: Set NAV from CTS duration</strong>
+                            <p>A "hidden station" — one that is in range of B but NOT in range of A — cannot hear the
+                                RTS. But it CAN hear the CTS. When it reads the CTS's Duration field, it sets its NAV
+                                and defers, even though it doesn't know about Station A's upcoming data. This is the
+                                primary defense against the hidden terminal problem.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle amber">5</div>
+                        <div class="step-body">
+                            <strong>Station A: SIFS, then send DATA</strong>
+                            <p>Having received the CTS, Station A knows Station B is ready. It waits SIFS and transmits
+                                the full DATA frame. The channel is "protected" by the NAVs set in all nearby stations.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle lime">6</div>
+                        <div class="step-body">
+                            <strong>Station B: SIFS, then send ACK</strong>
+                            <p>Station B receives the DATA frame, verifies the FCS, and sends an ACK after a SIFS. The
+                                entire exchange is complete. All NAV timers near zero now, and the channel is available
+                                for new contention.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RTS/CTS Timeline -->
+            <div class="diagram-wrap">
+                <svg viewBox="0 0 700 180" xmlns="http://www.w3.org/2000/svg"
+                    style="width:100%;max-width:700px;display:block;margin:0 auto;">
+                    <!-- Transmitter timeline -->
+                    <text x="5" y="50" fill="#63b3ed" font-size="11" font-family="JetBrains Mono, monospace">TX</text>
+                    <line x1="40" y1="48" x2="680" y2="48" stroke="rgba(99,179,237,0.15)" stroke-width="1" />
+
+                    <!-- Receiver timeline -->
+                    <text x="5" y="100" fill="#b794f4" font-size="11" font-family="JetBrains Mono, monospace">RX</text>
+                    <line x1="40" y1="98" x2="680" y2="98" stroke="rgba(183,148,244,0.15)" stroke-width="1" />
+
+                    <!-- Time axis -->
+                    <line x1="40" y1="155" x2="680" y2="155" stroke="rgba(255,255,255,0.1)" stroke-width="1.5" />
+                    <text x="670" y="150" fill="rgba(255,255,255,0.3)" font-size="9.5"
+                        font-family="JetBrains Mono, monospace">t</text>
+
+                    <!-- DIFS block -->
+                    <rect x="40" y="35" width="55" height="25" rx="4" fill="rgba(183,148,244,0.2)"
+                        stroke="rgba(183,148,244,0.4)" stroke-width="1.2" />
+                    <text x="67" y="52" fill="#b794f4" text-anchor="middle" font-size="9.5"
+                        font-family="JetBrains Mono, monospace" font-weight="700">DIFS+BO</text>
+
+                    <!-- RTS block -->
+                    <rect x="95" y="35" width="55" height="25" rx="4" fill="rgba(99,179,237,0.25)"
+                        stroke="rgba(99,179,237,0.5)" stroke-width="1.2" />
+                    <text x="122" y="52" fill="#63b3ed" text-anchor="middle" font-size="10"
+                        font-family="JetBrains Mono, monospace" font-weight="700">RTS</text>
+                    <text x="122" y="168" fill="rgba(255,255,255,0.3)" text-anchor="middle" font-size="9">95</text>
+
+                    <!-- SIFS TX side -->
+                    <rect x="150" y="35" width="25" height="25" rx="3" fill="rgba(79,209,199,0.2)"
+                        stroke="rgba(79,209,199,0.35)" stroke-width="1" />
+                    <text x="162" y="52" fill="#4fd1c7" text-anchor="middle" font-size="8"
+                        font-family="JetBrains Mono, monospace">SIFS</text>
+
+                    <!-- CTS RX side -->
+                    <rect x="175" y="85" width="55" height="25" rx="4" fill="rgba(183,148,244,0.25)"
+                        stroke="rgba(183,148,244,0.5)" stroke-width="1.2" />
+                    <text x="202" y="102" fill="#b794f4" text-anchor="middle" font-size="10"
+                        font-family="JetBrains Mono, monospace" font-weight="700">CTS</text>
+
+                    <!-- SIFS TX side (before DATA) -->
+                    <rect x="230" y="35" width="25" height="25" rx="3" fill="rgba(79,209,199,0.2)"
+                        stroke="rgba(79,209,199,0.35)" stroke-width="1" />
+                    <text x="242" y="52" fill="#4fd1c7" text-anchor="middle" font-size="8"
+                        font-family="JetBrains Mono, monospace">SIFS</text>
+
+                    <!-- DATA TX side -->
+                    <rect x="255" y="35" width="190" height="25" rx="4" fill="rgba(154,230,180,0.2)"
+                        stroke="rgba(154,230,180,0.4)" stroke-width="1.2" />
+                    <text x="350" y="52" fill="#9ae6b4" text-anchor="middle" font-size="10"
+                        font-family="JetBrains Mono, monospace" font-weight="700">DATA FRAME</text>
+
+                    <!-- SIFS RX side (before ACK) -->
+                    <rect x="445" y="85" width="25" height="25" rx="3" fill="rgba(79,209,199,0.2)"
+                        stroke="rgba(79,209,199,0.35)" stroke-width="1" />
+                    <text x="457" y="102" fill="#4fd1c7" text-anchor="middle" font-size="8"
+                        font-family="JetBrains Mono, monospace">SIFS</text>
+
+                    <!-- ACK RX side -->
+                    <rect x="470" y="85" width="55" height="25" rx="4" fill="rgba(252,129,129,0.22)"
+                        stroke="rgba(252,129,129,0.45)" stroke-width="1.2" />
+                    <text x="497" y="102" fill="#fc8181" text-anchor="middle" font-size="10"
+                        font-family="JetBrains Mono, monospace" font-weight="700">ACK</text>
+
+                    <!-- NAV bars for 3rd station (hidden) -->
+                    <rect x="175" y="120" width="350" height="12" rx="2" fill="rgba(246,173,85,0.12)"
+                        stroke="rgba(246,173,85,0.3)" stroke-width="1" stroke-dasharray="4,2" />
+                    <text x="350" y="130" fill="#f6ad55" text-anchor="middle" font-size="8.5"
+                        font-family="JetBrains Mono, monospace">NAV of hidden station (set by CTS Duration)</text>
+
+                    <!-- Labels -->
+                    <text x="97" y="25" fill="rgba(99,179,237,0.6)" font-size="8"
+                        font-family="JetBrains Mono, monospace">~20 bytes</text>
+                    <text x="255" y="25" fill="rgba(154,230,180,0.6)" font-size="8"
+                        font-family="JetBrains Mono, monospace">Full data (e.g., 1500 bytes)</text>
+                </svg>
+                <div class="diagram-caption">Figure: Complete RTS/CTS Frame Exchange. Note that all SIFS gaps between
+                    frames are identical (16µs for 802.11a). The NAV set by the CTS protects the channel for stations
+                    hidden from the transmitter.</div>
+            </div>
+
+            <div class="insight">
+                <div class="ib-label">💡 Key Insight — Why RTS/CTS is Often Disabled</div>
+                <p>RTS/CTS adds overhead: an RTS frame transmission + SIFS + CTS frame transmission + SIFS before any
+                    data is sent. For small frames, this overhead is disproportionately large compared to the data. For
+                    large frames (where collision cost is high), the overhead is justified. This is why 802.11 allows
+                    configuring an <strong>RTS Threshold</strong>: frames above the threshold use RTS/CTS; frames below
+                    it don't. In many real-world deployments, RTS/CTS is completely disabled ("often disabled due to its
+                    overhead" — as stated in the slides) because the hidden terminal problem is rare in typical
+                    office/home environments with good AP placement.</p>
+            </div>
+
+            <div class="prof-corner">
+                <div class="pc-header">🎓 Professor's Picky Corner — RTS/CTS</div>
+                <ul>
+                    <li><strong>RTS/CTS reduces but does not eliminate collisions.</strong> Multiple stations can still
+                        attempt RTS simultaneously and collide. But RTS collisions waste far less channel time than DATA
+                        collisions.</li>
+                    <li><strong>The CTS is the key to solving the hidden terminal problem</strong> — not the RTS. Hidden
+                        Station C may not hear the RTS from Station A, but it WILL hear the CTS from Station B (since C
+                        is in range of B). The CTS sets C's NAV.</li>
+                    <li>After the CTS, all subsequent frames (DATA, ACK) are separated by SIFS, not DIFS. This means no
+                        other station can interrupt the ongoing exchange using the normal DIFS-based access.</li>
+                    <li>The slides state: "all frames... are spaced by SIFS for transceiver turnaround." The reason for
+                        SIFS between consecutive frames in an exchange is purely hardware: the radio needs ~16 µs to
+                        switch from receive mode to transmit mode.</li>
+                </ul>
+                <div class="trap-q">After the RTS is sent and the CTS is received, what IFS does the transmitter wait
+                    before sending DATA? → SIFS (not DIFS, not PIFS). Within an ongoing RTS/CTS/DATA/ACK exchange, every
+                    gap is SIFS to maintain the highest priority and prevent any other station from interrupting.</div>
+            </div>
+        </section>
+
+        <!-- ══════════════════ SECTION 13: HIDDEN STATION & NAV ══════════════════ -->
+        <section class="sec" id="sec-hidden">
+            <div class="sec-header">
+                <div class="sec-num">13</div>
+                <div class="sec-title-wrap">
+                    <h2>Hidden Station Problem &amp; NAV in Detail</h2>
+                    <div class="sec-subtitle">The classic wireless problem, and how RTS/CTS + NAV solves it</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>👻 What is the Hidden Station Problem?</h3>
+                <p>The <strong>hidden terminal problem</strong> arises when a station (C) is in range of a receiver (B)
+                    but NOT in range of the transmitter (A). Station C cannot detect Station A's transmission and
+                    therefore incorrectly concludes the channel is idle. If C starts transmitting to B simultaneously
+                    with A, a collision occurs at B even though both A and C each individually believed the channel to
+                    be free.</p>
+
+                <div class="diagram-wrap">
+                    <svg viewBox="0 0 500 180" xmlns="http://www.w3.org/2000/svg"
+                        style="width:100%;max-width:500px;display:block;margin:0 auto;">
+                        <!-- Range circles -->
+                        <circle cx="130" cy="100" r="110" fill="rgba(99,179,237,0.04)" stroke="rgba(99,179,237,0.2)"
+                            stroke-width="1.5" stroke-dasharray="6,3" />
+                        <circle cx="370" cy="100" r="110" fill="rgba(183,148,244,0.04)" stroke="rgba(183,148,244,0.2)"
+                            stroke-width="1.5" stroke-dasharray="6,3" />
+
+                        <!-- Station A -->
+                        <circle cx="90" cy="100" r="22" fill="rgba(99,179,237,0.2)" stroke="rgba(99,179,237,0.5)"
+                            stroke-width="1.5" />
+                        <text x="90" y="105" fill="#63b3ed" text-anchor="middle" font-size="11"
+                            font-family="JetBrains Mono, monospace" font-weight="700">A</text>
+                        <text x="90" y="140" fill="rgba(99,179,237,0.6)" text-anchor="middle" font-size="10"
+                            font-family="JetBrains Mono, monospace">Transmitter</text>
+
+                        <!-- Station B (AP) -->
+                        <circle cx="250" cy="100" r="22" fill="rgba(154,230,180,0.2)" stroke="rgba(154,230,180,0.5)"
+                            stroke-width="1.5" />
+                        <text x="250" y="105" fill="#9ae6b4" text-anchor="middle" font-size="11"
+                            font-family="JetBrains Mono, monospace" font-weight="700">B</text>
+                        <text x="250" y="140" fill="rgba(154,230,180,0.6)" text-anchor="middle" font-size="10"
+                            font-family="JetBrains Mono, monospace">AP / Receiver</text>
+
+                        <!-- Station C -->
+                        <circle cx="410" cy="100" r="22" fill="rgba(183,148,244,0.2)" stroke="rgba(183,148,244,0.5)"
+                            stroke-width="1.5" />
+                        <text x="410" y="105" fill="#b794f4" text-anchor="middle" font-size="11"
+                            font-family="JetBrains Mono, monospace" font-weight="700">C</text>
+                        <text x="410" y="140" fill="rgba(183,148,244,0.6)" text-anchor="middle" font-size="10"
+                            font-family="JetBrains Mono, monospace">Hidden STA</text>
+
+                        <!-- Signal from A to B (solid) -->
+                        <line x1="112" y1="100" x2="228" y2="100" stroke="rgba(99,179,237,0.5)" stroke-width="2"
+                            marker-end="url(#arrowhead)" />
+                        <text x="170" y="92" fill="rgba(99,179,237,0.7)" text-anchor="middle" font-size="9.5"
+                            font-family="JetBrains Mono, monospace">A→B OK</text>
+
+                        <!-- Signal from C to B (solid) -->
+                        <line x1="388" y1="100" x2="272" y2="100" stroke="rgba(183,148,244,0.5)" stroke-width="2"
+                            marker-end="url(#arrowhead)" />
+                        <text x="330" y="92" fill="rgba(183,148,244,0.7)" text-anchor="middle" font-size="9.5"
+                            font-family="JetBrains Mono, monospace">C→B OK</text>
+
+                        <!-- A cannot hear C (dashed, blocked) -->
+                        <line x1="112" y1="110" x2="388" y2="110" stroke="rgba(252,129,129,0.2)" stroke-width="1"
+                            stroke-dasharray="5,3" />
+                        <text x="250" y="125" fill="rgba(252,129,129,0.5)" text-anchor="middle" font-size="9.5"
+                            font-family="JetBrains Mono, monospace">A ↔ C: CANNOT HEAR EACH OTHER</text>
+
+                        <!-- Collision at B indicator -->
+                        <text x="250" y="60" fill="#fc8181" text-anchor="middle" font-size="11"
+                            font-family="JetBrains Mono, monospace" font-weight="700">💥 COLLISION AT B</text>
+                        <text x="250" y="75" fill="rgba(252,129,129,0.5)" text-anchor="middle" font-size="9.5"
+                            font-family="JetBrains Mono, monospace">A &amp; C transmit simultaneously → B receives
+                            garbage</text>
+                    </svg>
+                    <div class="diagram-caption">Figure: Hidden Station Problem. A and C are each other's "hidden
+                        stations." Both sense the channel idle (they can't hear each other), but their simultaneous
+                        transmissions collide at B.</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🔍 The Detailed NAV Example from Slide 48</h3>
+                <p>The slide shows a complex 6-station scenario. Here is the complete interpretation:</p>
+
+                <div class="step-flow">
+                    <div class="step-item">
+                        <div class="step-circle blue">1</div>
+                        <div class="step-body">
+                            <strong>Station 6 is initially transmitting DATA to someone</strong>
+                            <p>Station 6 is already on the channel. Station 3 overhears this and sets its NAV (timer).
+                                Station 3 keeps its backoff counter frozen at 2 remaining slots.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle cyan">2</div>
+                        <div class="step-body">
+                            <strong>Station 2 wins contention with random backoff of 7 slots</strong>
+                            <p>After sensing the channel idle for DIFS, Station 2 begins its backoff countdown from 7.
+                                It reaches zero and transmits an RTS to Station 1 (the AP). Stations 3, 4, and 5
+                                overhear the RTS and set their NAV timers based on the Duration field.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle violet">3</div>
+                        <div class="step-body">
+                            <strong>Station 1 responds with CTS</strong>
+                            <p>Station 1 sends CTS after SIFS. Station 6 (hidden from Station 2 in the diagram, meaning
+                                it couldn't hear the RTS) CAN hear the CTS from Station 1. Station 6 reads the Duration
+                                field from the CTS and sets its NAV, deferring its access despite being hidden from
+                                Station 2.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle emerald">4</div>
+                        <div class="step-body">
+                            <strong>DATA exchange proceeds</strong>
+                            <p>Station 2 sends DATA after SIFS. Station 1 sends ACK after SIFS. All surrounding stations
+                                have their NAV set and remain silent throughout.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle amber">5</div>
+                        <div class="step-body">
+                            <strong>After NAV expires, new contention round begins</strong>
+                            <p>Station 1 picks a new random backoff of 10 slots (as shown in the slide). Station 3
+                                resumes its frozen backoff counter of 2 remaining slots. Station 3 wins this contention
+                                (2 &lt; 10) and transmits a DATA frame to Station 4. Station 4 sends the ACK.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="success-box">
+                    <strong>✅ Key Takeaway from the 6-Station Example:</strong> Station 6 is "hidden" to Station 2
+                    (can't hear its RTS), but CAN hear Station 1's CTS. The CTS is the mechanism that allows the hidden
+                    station to learn about the ongoing channel reservation and defer its access. Without CTS, Station 6
+                    would transmit during the DATA exchange and cause a collision.
+                </div>
+            </div>
+
+            <div class="prof-corner">
+                <div class="pc-header">🎓 Professor's Picky Corner — Hidden Station &amp; NAV</div>
+                <ul>
+                    <li><strong>Station 3 DEFERS but keeps its backoff counter.</strong> It does not reset to a new
+                        random value. This is the "resume, not restart" principle from Section 10. After the NAV expires
+                        and the channel goes idle for DIFS, Station 3 resumes from 2 remaining slots.</li>
+                    <li>The diagram shows "NAV reset" for Station 3 — this means the NAV was set (triggered by
+                        overhearing RTS/CTS/DATA). After the exchange ends, NAV = 0 and normal competition resumes.</li>
+                    <li><strong>SIFS &lt; DIFS is what gives CTS and ACK highest priority</strong>: CTS is sent after a
+                        SIFS. No competing DCF station can seize the channel after SIFS (they need DIFS). So the ACK and
+                        CTS are always guaranteed to arrive if their transmitter is within range.</li>
+                </ul>
+                <div class="trap-q">In the 6-station example, why does Station 6 set its NAV even though Station 6 is
+                    hidden from Station 2? → Because Station 6 IS in range of Station 1 (the AP). When Station 1 sends
+                    the CTS, Station 6 overhears it. The CTS Duration field tells Station 6 how long the remaining
+                    exchange (DATA + SIFS + ACK) will take, so Station 6 sets its NAV accordingly.</div>
+            </div>
+        </section>
+
+        <!-- ══════════════════ SECTION 14: BACKOFF EXAMPLE ══════════════════ -->
+        <section class="sec" id="sec-backoff-example">
+            <div class="sec-header">
+                <div class="sec-num">14</div>
+                <div class="sec-title-wrap">
+                    <h2>Backoff Worked Example (Slides 35–39)</h2>
+                    <div class="sec-subtitle">AP1 vs AP2 — step-by-step channel access with two competing stations</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📚 Setup: Two APs Competing for the Channel (RTS/CTS Disabled)</h3>
+                <p>The slides present a concrete example with two access points (AP1 and AP2) competing for the channel.
+                    RTS/CTS is <strong>disabled</strong> in the first scenario (slides 37–39). Both APs have just
+                    finished a prior exchange and are about to contend.</p>
+
+                <div class="grid-2">
+                    <div
+                        style="background:rgba(99,179,237,0.07);border:1px solid rgba(99,179,237,0.2);border-radius:10px;padding:16px;">
+                        <div style="font-size:13px;color:var(--accent-primary);font-weight:700;margin-bottom:8px;">AP1
+                        </div>
+                        <div class="spec-row"><span class="spec-key">Initial Backoff</span><span class="spec-val">B1 =
+                                15 slots</span></div>
+                        <div class="spec-row"><span class="spec-key">Receiver</span><span class="spec-val">R1</span>
+                        </div>
+                    </div>
+                    <div
+                        style="background:rgba(154,230,180,0.07);border:1px solid rgba(154,230,180,0.2);border-radius:10px;padding:16px;">
+                        <div style="font-size:13px;color:var(--accent-lime);font-weight:700;margin-bottom:8px;">AP2
+                        </div>
+                        <div class="spec-row"><span class="spec-key">Initial Backoff</span><span class="spec-val">B2 =
+                                25 slots</span></div>
+                        <div class="spec-row"><span class="spec-key">Receiver</span><span class="spec-val">R2</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🔢 Phase 1: Both Start Counting Down After DIFS</h3>
+                <p>After the DIFS period, both AP1 (B1=15) and AP2 (B2=25) start counting down simultaneously:</p>
+                <ul>
+                    <li>AP1 counts from 15 → 14 → 13 → ... → 1 → <strong>0</strong> (after 15 slots)</li>
+                    <li>AP2 counts from 25 → 24 → 23 → ... → 11 → <strong>10</strong> (AP2 has 10 remaining when AP1
+                        reaches zero)</li>
+                </ul>
+                <p>AP1 reaches zero first after 15 slots (15 × 9 µs = 135 µs). AP2 still has 10 slots remaining.</p>
+
+                <h3>🔢 Phase 2: AP1 Wins — Transmits Data and ACK</h3>
+                <p>AP1's backoff counter hits zero. AP1 transmits directly to R1 (DATA frame + ACK in the
+                    RTS/CTS-disabled scenario). AP2 senses the channel going busy and <strong>freezes its counter at
+                        B2=10</strong>. AP2 waits.</p>
+
+                <h3>🔢 Phase 3: Channel Goes Idle Again, New Round</h3>
+                <p>AP1 finishes its exchange. AP1 picks a NEW random backoff for its NEXT potential frame: B1 = 18 (new
+                    random from [0, CW]).</p>
+                <ul>
+                    <li>AP2 resumes its frozen counter from <strong>10</strong> (not from a new random!)</li>
+                    <li>AP1 starts fresh from 18.</li>
+                </ul>
+                <p>After DIFS, both count down again. AP2 (B2=10) reaches zero before AP1 (B1=18). AP2 wins this round
+                    and transmits to R2. AP1 now has B1 = 18 − 10 = <strong>8 remaining</strong>.</p>
+
+                <h3>🔢 Phase 4: AP2 Wins, AP1 Freezes at 8</h3>
+                <p>AP2 transmits its Data and ACK exchange. AP1 freezes at 8. When AP2 finishes, AP1 resumes counting
+                    from 8 and will win the next contention (assuming no new competitor with a smaller backoff).</p>
+            </div>
+
+            <div class="diagram-wrap">
+                <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg"
+                    style="width:100%;max-width:700px;display:block;margin:0 auto;">
+                    <!-- AP1 timeline -->
+                    <text x="10" y="55" fill="#63b3ed" font-size="10.5"
+                        font-family="JetBrains Mono, monospace">AP1</text>
+                    <line x1="50" y1="55" x2="660" y2="55" stroke="rgba(99,179,237,0.1)" stroke-width="1" />
+
+                    <!-- AP2 timeline -->
+                    <text x="10" y="100" fill="#9ae6b4" font-size="10.5"
+                        font-family="JetBrains Mono, monospace">AP2</text>
+                    <line x1="50" y1="100" x2="660" y2="100" stroke="rgba(154,230,180,0.1)" stroke-width="1" />
+
+                    <!-- Time axis -->
+                    <line x1="50" y1="170" x2="660" y2="170" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" />
+                    <text x="655" y="165" fill="rgba(255,255,255,0.3)" font-size="9">t→</text>
+
+                    <!-- DIFS block for AP1 -->
+                    <rect x="50" y="40" width="30" height="24" rx="3" fill="rgba(183,148,244,0.2)"
+                        stroke="rgba(183,148,244,0.35)" stroke-width="1" />
+                    <text x="65" y="56" fill="#b794f4" text-anchor="middle" font-size="8"
+                        font-family="JetBrains Mono, monospace">DIFS</text>
+
+                    <!-- DIFS block for AP2 -->
+                    <rect x="50" y="86" width="30" height="24" rx="3" fill="rgba(183,148,244,0.2)"
+                        stroke="rgba(183,148,244,0.35)" stroke-width="1" />
+                    <text x="65" y="102" fill="#b794f4" text-anchor="middle" font-size="8"
+                        font-family="JetBrains Mono, monospace">DIFS</text>
+
+                    <!-- AP1 backoff (B=15 slots) -->
+                    <rect x="80" y="40" width="68" height="24" rx="3" fill="rgba(99,179,237,0.1)"
+                        stroke="rgba(99,179,237,0.3)" stroke-width="1" />
+                    <text x="114" y="56" fill="#63b3ed" text-anchor="middle" font-size="8.5"
+                        font-family="JetBrains Mono, monospace">B1=15→0</text>
+
+                    <!-- AP2 backoff (B=25, only 15 counted then freeze) -->
+                    <rect x="80" y="86" width="68" height="24" rx="3" fill="rgba(154,230,180,0.1)"
+                        stroke="rgba(154,230,180,0.3)" stroke-width="1" />
+                    <text x="114" y="102" fill="#9ae6b4" text-anchor="middle" font-size="8.5"
+                        font-family="JetBrains Mono, monospace">B2=25→10</text>
+
+                    <!-- AP1 Data+ACK -->
+                    <rect x="148" y="36" width="105" height="28" rx="4" fill="rgba(99,179,237,0.2)"
+                        stroke="rgba(99,179,237,0.45)" stroke-width="1.5" />
+                    <text x="200" y="54" fill="#63b3ed" text-anchor="middle" font-size="10"
+                        font-family="JetBrains Mono, monospace" font-weight="700">Data &amp; ACK</text>
+
+                    <!-- AP2 Wait -->
+                    <rect x="148" y="84" width="105" height="28" rx="3" fill="rgba(100,100,120,0.15)"
+                        stroke="rgba(100,100,120,0.3)" stroke-width="1" />
+                    <text x="200" y="102" fill="rgba(255,255,255,0.35)" text-anchor="middle" font-size="9"
+                        font-family="JetBrains Mono, monospace">Wait (B2=10)</text>
+
+                    <!-- AP1 new DIFS + Backoff (B=18) -->
+                    <rect x="253" y="40" width="30" height="24" rx="3" fill="rgba(183,148,244,0.15)"
+                        stroke="rgba(183,148,244,0.25)" stroke-width="1" />
+                    <text x="268" y="56" fill="#b794f4" text-anchor="middle" font-size="7.5"
+                        font-family="JetBrains Mono, monospace">DIFS</text>
+
+                    <rect x="283" y="40" width="46" height="24" rx="3" fill="rgba(99,179,237,0.08)"
+                        stroke="rgba(99,179,237,0.2)" stroke-width="1" />
+                    <text x="306" y="56" fill="#63b3ed" text-anchor="middle" font-size="8"
+                        font-family="JetBrains Mono, monospace">B1=18</text>
+                    <text x="290" y="73" fill="rgba(99,179,237,0.4)" font-size="7.5"
+                        font-family="JetBrains Mono, monospace">B2=10→0</text>
+
+                    <!-- AP2 DIFS + Backoff (resume B=10) -->
+                    <rect x="253" y="84" width="30" height="24" rx="3" fill="rgba(183,148,244,0.15)"
+                        stroke="rgba(183,148,244,0.25)" stroke-width="1" />
+                    <text x="268" y="100" fill="#b794f4" text-anchor="middle" font-size="7.5"
+                        font-family="JetBrains Mono, monospace">DIFS</text>
+
+                    <rect x="283" y="84" width="46" height="24" rx="3" fill="rgba(154,230,180,0.08)"
+                        stroke="rgba(154,230,180,0.2)" stroke-width="1" />
+                    <text x="306" y="100" fill="#9ae6b4" text-anchor="middle" font-size="8"
+                        font-family="JetBrains Mono, monospace">B2=10→0</text>
+
+                    <!-- AP2 wins Data+ACK -->
+                    <rect x="329" y="80" width="105" height="28" rx="4" fill="rgba(154,230,180,0.2)"
+                        stroke="rgba(154,230,180,0.45)" stroke-width="1.5" />
+                    <text x="381" y="98" fill="#9ae6b4" text-anchor="middle" font-size="10"
+                        font-family="JetBrains Mono, monospace" font-weight="700">Data &amp; ACK</text>
+
+                    <!-- AP1 waits (B=8) -->
+                    <rect x="329" y="36" width="105" height="28" rx="3" fill="rgba(100,100,120,0.12)"
+                        stroke="rgba(100,100,120,0.25)" stroke-width="1" />
+                    <text x="381" y="54" fill="rgba(255,255,255,0.3)" text-anchor="middle" font-size="9"
+                        font-family="JetBrains Mono, monospace">Wait (B1→8)</text>
+
+                    <!-- AP1 resumes from 8 -->
+                    <rect x="434" y="40" width="30" height="24" rx="3" fill="rgba(183,148,244,0.15)"
+                        stroke="rgba(183,148,244,0.25)" stroke-width="1" />
+                    <text x="449" y="56" fill="#b794f4" text-anchor="middle" font-size="7.5"
+                        font-family="JetBrains Mono, monospace">DIFS</text>
+
+                    <rect x="464" y="40" width="40" height="24" rx="3" fill="rgba(99,179,237,0.08)"
+                        stroke="rgba(99,179,237,0.2)" stroke-width="1" />
+                    <text x="484" y="56" fill="#63b3ed" text-anchor="middle" font-size="8"
+                        font-family="JetBrains Mono, monospace">B1=8→0</text>
+
+                    <!-- AP1 wins final Data+ACK -->
+                    <rect x="504" y="36" width="100" height="28" rx="4" fill="rgba(99,179,237,0.18)"
+                        stroke="rgba(99,179,237,0.4)" stroke-width="1.5" />
+                    <text x="554" y="54" fill="#63b3ed" text-anchor="middle" font-size="10"
+                        font-family="JetBrains Mono, monospace" font-weight="700">Data &amp; ACK</text>
+
+                    <!-- Labels at bottom -->
+                    <text x="200" y="145" fill="rgba(99,179,237,0.5)" text-anchor="middle" font-size="8.5"
+                        font-family="JetBrains Mono, monospace">Round 1: AP1 wins (15 &lt; 25)</text>
+                    <text x="381" y="145" fill="rgba(154,230,180,0.5)" text-anchor="middle" font-size="8.5"
+                        font-family="JetBrains Mono, monospace">Round 2: AP2 wins (10 &lt; 18)</text>
+                    <text x="554" y="145" fill="rgba(99,179,237,0.5)" text-anchor="middle" font-size="8.5"
+                        font-family="JetBrains Mono, monospace">Round 3: AP1 wins (8)</text>
+
+                    <!-- Wastage indicators -->
+                    <text x="90" y="130" fill="rgba(252,129,129,0.5)" text-anchor="middle" font-size="8"
+                        font-family="JetBrains Mono, monospace">← backoff overhead →</text>
+                </svg>
+                <div class="diagram-caption">Figure: 3-Round Backoff Example — AP1 (B=15) wins Round 1, AP2 (B=10
+                    remaining) wins Round 2, AP1 (B=8 remaining) wins Round 3. Note how AP2 RESUMES from 10 rather than
+                    picking a new random value.</div>
+            </div>
+
+            <div class="math-box">
+                <div class="math-label">Slide 41: Medium Access Overhead at 54 Mbps</div>
+                <div class="math-formula">Overhead ≈ 35% at 54 Mbps (802.11a/g)</div>
+                <div class="math-step">
+                    <div class="step-num">!</div><span>Meaning: out of every 100 µs of channel time at 54 Mbps,
+                        approximately 35 µs is wasted on: backoff idle time, DIFS, SIFS, ACK overhead, and optional
+                        RTS/CTS overhead.</span>
+                </div>
+                <div class="math-step">
+                    <div class="step-num">!</div><span>The "High channel wastage due to backoff" illustration shows the
+                        idle backoff slots as circled waste on the timeline. During these slots, no data is
+                        transmitted.</span>
+                </div>
+                <div class="math-step">
+                    <div class="step-num">!</div><span>The "High channel wastage due to Collision" is separate — when a
+                        collision occurs, the entire data frame transmission time is wasted, requiring retransmission
+                        with an extended CW.</span>
+                </div>
+                <div class="math-result">Effective throughput ≤ 65% of nominal 54 Mbps = ~35 Mbps actual throughput
+                </div>
+            </div>
+
+            <div class="prof-corner">
+                <div class="pc-header">🎓 Professor's Picky Corner — Backoff Example</div>
+                <ul>
+                    <li><strong>AP2 resumes with B2=10, NOT with a new random.</strong> This is the key "freeze and
+                        resume" rule. Because AP2 had already been waiting (its B was already partially decremented), it
+                        gets priority in Round 2.</li>
+                    <li>The <strong>35% overhead at 54 Mbps</strong> is a key figure from the slides. The professor
+                        could ask you to explain what contributes to it: (a) DIFS = 34 µs per transmission, (b) random
+                        backoff idle slots (avg CW/2 × 9µs), (c) SIFS + ACK, (d) optional RTS/CTS, (e) PHY/MAC header
+                        overhead.</li>
+                    <li>The slide says "High channel wastage due to <strong>backoff</strong>" AND "High channel wastage
+                        due to <strong>Collision</strong>." These are two distinct sources of inefficiency. Backoff
+                        wastes idle channel time (nobody transmitting). Collisions waste active channel time
+                        (transmitting data that gets destroyed).</li>
+                </ul>
+                <div class="trap-q">After Round 1, AP2 has a remaining backoff of 10. AP1 picks a new random backoff of
+                    18. Who wins Round 2, and what does the loser's backoff counter become? → AP2 wins (10 &lt; 18). AP1
+                    freezes at 18 − 10 = 8 remaining slots.</div>
+            </div>
+        </section>
+
+        <!-- ══════════════════ SECTION 15: OVERHEAD ══════════════════ -->
+        <section class="sec" id="sec-overhead">
+            <div class="sec-header">
+                <div class="sec-num">15</div>
+                <div class="sec-title-wrap">
+                    <h2>802.11 Medium Access Overhead</h2>
+                    <div class="sec-subtitle">Quantifying the inefficiency of CSMA/CA — and the three major sources
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📊 The Three Pillars of Overhead</h3>
+                <p>802.11 DCF has significant inefficiencies. The slides explicitly identify three major sources:</p>
+
+                <h4>1. Idle Channel Time During Backoff</h4>
+                <p>During the backoff countdown, the channel carries zero data. Every slot that a station is counting
+                    down is a slot where nobody is transmitting. If CW = 15 (first attempt), the average random backoff
+                    is CW/2 = 7.5 slots = 7.5 × 9 µs = 67.5 µs of idle time per transmission. This is pure waste from a
+                    throughput perspective.</p>
+
+                <h4>2. Collision Probability and Retransmissions</h4>
+                <p>When two or more stations pick the same backoff value, they transmit simultaneously and collide. The
+                    entire transmission time is wasted. The CW then doubles (BEB), adding even more future backoff
+                    overhead. At <strong>10 active nodes</strong>, the probability of at least two nodes choosing the
+                    same backoff slot exceeds 40%, as stated in the slides. This dramatically reduces throughput and
+                    increases latency.</p>
+
+                <h4>3. Binary Exponential Backoff Under Congestion</h4>
+                <p>BEB forces CW to grow as: <code>CW = min(2^(n-1) × CWmin − 1, CWmax)</code>. In a crowded network,
+                    even successfully transmitting nodes may have elevated CWs from prior collisions. The exponential
+                    growth means a single burst of collisions can cause elevated idle time for many subsequent
+                    transmissions.</p>
+            </div>
+
+            <div class="card">
+                <h3>📋 Full Overhead Breakdown per Transmission</h3>
+                <p>From Slide 42, the complete overhead components for a single data transmission are:</p>
+
+                <div class="timing-strip">
+                    <div class="ts-block ts-difs" style="min-width:55px;">DIFS<br>34 µs</div>
+                    <div class="ts-block ts-backoff" style="min-width:60px;">Random<br>Backoff</div>
+                    <div class="ts-block ts-rts" style="min-width:45px;">RTS<br>(opt.)</div>
+                    <div class="ts-block ts-sifs" style="min-width:30px;">SIFS<br>16µs</div>
+                    <div class="ts-block ts-cts" style="min-width:45px;">CTS<br>(opt.)</div>
+                    <div class="ts-block ts-sifs" style="min-width:30px;">SIFS</div>
+                    <div class="ts-block ts-data" style="min-width:100px;">DATA FRAME<br>(useful payload)</div>
+                    <div class="ts-block ts-sifs" style="min-width:30px;">SIFS</div>
+                    <div class="ts-block ts-ack" style="min-width:45px;">ACK<br>required</div>
+                </div>
+
+                <p style="margin-top:14px;font-size:13px;">Sources of overhead:</p>
+                <ul>
+                    <li><strong>DIFS (34 µs):</strong> Mandatory wait. No data transmitted.</li>
+                    <li><strong>Random Backoff (avg. 7.5 × 9 µs = 67.5 µs for first attempt):</strong> No data
+                        transmitted.</li>
+                    <li><strong>ACK + SIFS:</strong> Necessary for reliability but not data.</li>
+                    <li><strong>RTS + CTS + 2×SIFS (optional):</strong> Collision reservation overhead (~100 µs
+                        additional).</li>
+                    <li><strong>MAC/PHY header overhead:</strong> Each MPDU has a MAC header (30+ bytes) and PHY
+                        preamble + header (~20 µs).</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>🔧 How 802.11 Can Be Improved (Slide Reference)</h3>
+                <p>The slides explicitly state: "802.11 has room for improvement. How? (Will be discussed in coming
+                    lectures)." The key techniques are:</p>
+                <ul>
+                    <li><strong>Frame Aggregation (802.11n):</strong> Bundle multiple MSDUs or MPDUs into one
+                        super-frame. The DIFS + backoff + ACK overhead is amortized over much more data. A single
+                        802.11n aggregated frame can carry up to 64 MPDUs (A-MPDU) or multiple MSDUs (A-MSDU).</li>
+                    <li><strong>Block ACK:</strong> Instead of one ACK per MPDU, one Block ACK acknowledges an entire
+                        aggregated frame exchange.</li>
+                    <li><strong>802.11e (EDCA):</strong> Replaces the single DIFS with 4 different access categories,
+                        each with different AIFSN (Arbitration IFS), CWmin, and CWmax. Voice and video traffic gets
+                        shorter IFS, winning contention more often.</li>
+                    <li><strong>OFDMA (802.11ax/Wi-Fi 6):</strong> Allows simultaneous transmissions to multiple users
+                        on different sub-carrier groups in the same channel, eliminating the overhead-per-station
+                        problem entirely.</li>
+                </ul>
+            </div>
+
+            <div class="prof-corner">
+                <div class="pc-header">🎓 Professor's Picky Corner — Overhead</div>
+                <ul>
+                    <li><strong>The 35% overhead figure is specific to 54 Mbps (802.11a/g).</strong> At lower data rates
+                        (e.g., 6 Mbps), the overhead percentage is lower because the data transmission time is longer
+                        relative to the fixed overhead (DIFS, SIFS, backoff) costs.</li>
+                    <li>The two highlighted inefficiency sources on slide 45 are specifically: <strong>"High channel
+                            wastage due to Collision"</strong> AND <strong>"High channel wastage due to exponential
+                            backoff."</strong> These are presented as separate but related problems.</li>
+                    <li>At high data rates, the fixed overhead (DIFS + backoff + ACK/SIFS) dominates the channel time.
+                        At 54 Mbps, a 100-byte packet takes only ~15 µs to transmit, but DIFS alone takes 34 µs. The
+                        overhead is MORE than the data time!</li>
+                </ul>
+                <div class="trap-q">Why is the overhead percentage higher at 54 Mbps than at 6 Mbps? → Because the
+                    overhead (DIFS, backoff, SIFS, ACK) is mostly time-based and fixed, while the data transmission time
+                    decreases as the data rate increases. At higher rates, data transmits faster but overhead stays the
+                    same, so overhead occupies a larger fraction of total channel time.</div>
+            </div>
+        </section>
+
+        <!-- ══════════════════ SECTION 16: DCF FULL ALGORITHM ══════════════════ -->
+        <section class="sec" id="sec-dcf-algo">
+            <div class="sec-header">
+                <div class="sec-num">16</div>
+                <div class="sec-title-wrap">
+                    <h2>The Complete DCF Algorithm (Slide 40)</h2>
+                    <div class="sec-subtitle">Sender and receiver state machines — a complete flowchart</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📤 DCF Sender Algorithm (Complete)</h3>
+                <div class="step-flow">
+                    <div class="step-item">
+                        <div class="step-circle blue">1.1</div>
+                        <div class="step-body">
+                            <strong>If channel is BUSY → Freeze backoff timer</strong>
+                            <p>Physical CCA detects activity OR NAV &gt; 0. The station does NOT start or advance the
+                                backoff counter. It waits silently.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle cyan">1.2</div>
+                        <div class="step-body">
+                            <strong>If channel is IDLE for DIFS → Start random backoff timer</strong>
+                            <p>Once CCA=idle AND NAV=0 for at least DIFS (34 µs), the station selects a random r ∈ [0,
+                                CW] and starts the backoff countdown. The timer counts down while the channel remains
+                                idle.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle violet">2.1</div>
+                        <div class="step-body">
+                            <strong>Timer counts down while channel idle; freezes when busy; resumes after DIFS</strong>
+                            <p>This is the critical freeze-and-resume behavior. If the channel goes busy mid-countdown,
+                                freeze. When it goes idle again for DIFS, resume exactly where it left off.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle emerald">2.2</div>
+                        <div class="step-body">
+                            <strong>When timer expires → Transmit RTS (or DATA if RTS/CTS disabled)</strong>
+                            <p>The RTS contains the Duration field telling all nearby stations how long the upcoming
+                                exchange will take. The "(why?)" in the slide refers to: Why send RTS instead of DATA? →
+                                To avoid wasting channel time with a large DATA collision. RTS is small, so even a
+                                collision wastes little time.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle amber">3</div>
+                        <div class="step-body">
+                            <strong>If no CTS received → Go back to 1.2</strong>
+                            <p>"(why?)" — No CTS means either (a) RTS collided, (b) receiver didn't get the RTS. Either
+                                way, the data exchange cannot proceed. The station must re-enter the DIFS+backoff phase
+                                with a doubled CW.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle lime">4</div>
+                        <div class="step-body">
+                            <strong>If CTS received → Wait SIFS, then transmit DATA</strong>
+                            <p>CTS confirms the receiver is ready and the channel is clear for the upcoming data. SIFS
+                                ensures no interruption between CTS reception and DATA transmission.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle rose">5</div>
+                        <div class="step-body">
+                            <strong>If no ACK → Increase CW (double), Go back to 1.2</strong>
+                            <p>"(why?)" — No ACK means DATA was lost (collision or channel error). CW is doubled (BEB)
+                                to reduce future collision probability. The station re-enters contention with the larger
+                                CW.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📥 DCF Receiver Algorithm (Complete)</h3>
+                <div class="step-flow">
+                    <div class="step-item">
+                        <div class="step-circle blue">R1</div>
+                        <div class="step-body">
+                            <strong>If RTS frame received OK → Return CTS after SIFS</strong>
+                            <p>The receiver validates the RTS (checks FCS). If valid, after exactly SIFS (16 µs), it
+                                responds with a CTS. The CTS grants permission to transmit and also carries a Duration
+                                field to set NAVs everywhere.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle cyan">R2</div>
+                        <div class="step-body">
+                            <strong>If Data frame received OK → Return ACK after SIFS</strong>
+                            <p>The receiver validates the DATA frame's FCS. If valid, after SIFS it sends an ACK. The
+                                ACK is the positive confirmation that allows the sender to reset its CW and proceed. The
+                                ACK is sent after SIFS because ACK has HIGHEST priority — no other station can preempt
+                                it using DIFS/PIFS access.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="insight">
+                    <div class="ib-label">💡 Why ACK is needed due to hidden terminal problem</div>
+                    <p>Even with RTS/CTS, the ACK serves an important secondary function. Without the ACK, the
+                        transmitter has no way to know if its DATA was successfully received. This is especially
+                        critical because the hidden terminal problem can still affect the DATA phase in some network
+                        topologies. The ACK provides the explicit positive confirmation.</p>
+                </div>
+            </div>
+
+            <div class="prof-corner">
+                <div class="pc-header">🎓 Professor's Picky Corner — The Full Algorithm</div>
+                <p>The slide asks three "(why?)" questions. Make sure you can answer all three:</p>
+                <ul>
+                    <li><strong>Why transmit RTS first?</strong> → To avoid wasting channel time with a full DATA frame
+                        collision. Small RTS frames waste less time if they collide. It also solves the hidden terminal
+                        problem via CTS-triggered NAV.</li>
+                    <li><strong>Why go to 1.2 if no CTS?</strong> → The exchange cannot proceed without channel
+                        clearance. The station must re-compete with a doubled CW after the timeout, treating the "no
+                        CTS" as a collision signal.</li>
+                    <li><strong>Why increase backoff if no ACK?</strong> → No ACK signals a failed DATA delivery (lost
+                        in collision or channel error). BEB reduces the probability of the same collision recurring by
+                        spreading stations more widely in time.</li>
+                </ul>
+                <div class="trap-q">In the sender algorithm, after step 4 (DATA transmitted), what are the two possible
+                    outcomes and what does the sender do in each? → (a) ACK received: success. CW resets to CWmin-1.
+                    Transmit next frame (if any) starting from step 1.2. (b) No ACK received: failure. CW doubles (BEB).
+                    Retransmit from step 1.2 with new, larger backoff range.</div>
+            </div>
+        </section>
+
+        <!-- ══════════════════ SECTION 17: MASTER SUMMARY ══════════════════ -->
+        <section class="sec" id="sec-summary">
+            <div class="sec-header">
+                <div class="sec-num">17</div>
+                <div class="sec-title-wrap">
+                    <h2>Master Summary &amp; Exam Cheat Sheet</h2>
+                    <div class="sec-subtitle">All key values, formulas, and concepts in one place</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🔢 Critical Numbers to Memorize (802.11a)</h3>
+                <table class="comp-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Value</th>
+                            <th>Formula</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="td-label">aSlotTime</td>
+                            <td class="td-good">9 µs</td>
+                            <td>Fixed PHY constant</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">SIFS</td>
+                            <td class="td-good">16 µs</td>
+                            <td>Fixed hardware constant</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">PIFS</td>
+                            <td class="td-mid">25 µs</td>
+                            <td>SIFS + aSlotTime = 16+9</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">DIFS</td>
+                            <td class="td-mid">34 µs</td>
+                            <td>SIFS + 2×aSlotTime = 16+18</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">EIFS</td>
+                            <td class="td-bad">~200 µs</td>
+                            <td>≈ SIFS + ACK_TX + DIFS</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">CWmin</td>
+                            <td>16</td>
+                            <td>Standard constant → CW₀ = 15</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">CWmax</td>
+                            <td>1024</td>
+                            <td>Standard constant → CW_cap = 1023</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">CCA Threshold</td>
+                            <td>–82 dBm</td>
+                            <td>Impl. dependent</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h3>📐 All Formulas</h3>
+                <div class="math-box">
+                    <div class="math-label">IFS Formulas</div>
+                    <div class="math-formula">PIFS = SIFS + aSlotTime</div>
+                    <div class="math-formula">DIFS = SIFS + 2 × aSlotTime</div>
+                </div>
+                <div class="math-box">
+                    <div class="math-label">Contention Window &amp; Backoff</div>
+                    <div class="math-formula">CW(n) = min( 2^(n−1) × CWmin − 1 , CWmax )</div>
+                    <div class="math-formula">Backoff Duration = r × aSlotTime</div>
+                    <div class="math-step">
+                        <div class="step-num">!</div><span>n = attempt number (1,2,3,...). r = integer ∈ [0, CW]. For
+                            n=1: CW = 15 (for 802.11a). Each failed attempt doubles CW until capped at 1023.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📋 Key Concepts Summary</h3>
+                <table class="comp-table">
+                    <thead>
+                        <tr>
+                            <th>Concept</th>
+                            <th>Key Fact</th>
+                            <th>Exam Trap</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="td-label">BSS</td>
+                            <td>Basic building block of 802.11</td>
+                            <td>BSS ≠ WLAN (WLAN can be ESS)</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">DCF</td>
+                            <td>MANDATORY; all stations use it</td>
+                            <td>PCF is optional, not DCF</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">IBSS</td>
+                            <td>Min 2 STAs, no AP, DCF only</td>
+                            <td>PCF cannot work in IBSS</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">CSMA/CA</td>
+                            <td>Avoid collisions (not detect)</td>
+                            <td>CD impossible in wireless (2 reasons)</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">SIFS</td>
+                            <td>16µs, highest priority, no CCA</td>
+                            <td>SIFS does NOT use CCA</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">DIFS</td>
+                            <td>34µs, for DCF contention</td>
+                            <td>IFS values are rate-independent</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">EIFS</td>
+                            <td>~200µs, after bad frame reception</td>
+                            <td>Resets to DIFS after 1 good frame</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">NAV</td>
+                            <td>Virtual carrier sense via Duration field</td>
+                            <td>CCA idle + NAV&gt;0 → still cannot TX</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">Backoff</td>
+                            <td>Freeze, not reset, when channel busy</td>
+                            <td>Always backoff, even first attempt</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">BEB</td>
+                            <td>CW doubles after each failure</td>
+                            <td>Resets to CWmin-1 after success</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">RTS/CTS</td>
+                            <td>Protects large frames; often disabled</td>
+                            <td>CTS (not RTS) solves hidden terminal</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">All MAC variants</td>
+                            <td>ALL use CSMA/CA</td>
+                            <td>PHY differs; MAC (DCF) is the same</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h3>🏆 The Ultimate IFS Priority Mnemonic</h3>
+                <div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:20px;text-align:center;">
+                    <div
+                        style="font-family:'JetBrains Mono',monospace;font-size:18px;color:var(--accent-secondary);margin-bottom:12px;">
+                        "Super-Polite Ducks Eat Insects"</div>
+                    <div style="font-size:13px;color:var(--text-muted);">SIFS (16µs) → PIFS (25µs) → DIFS (34µs) → EIFS
+                        (~200µs)</div>
+                    <div style="font-size:12px;color:var(--text-dim);margin-top:6px;">Shortest gap = Highest priority =
+                        Goes first</div>
+                    <div style="font-size:12px;color:var(--text-dim);margin-top:2px;">ACK/CTS = SIFS | PCF polling =
+                        PIFS | DCF data = DIFS | Error recovery = EIFS</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>⚡ Quick-Fire Exam Q&amp;A</h3>
+                <div class="step-flow">
+                    <div class="step-item">
+                        <div class="step-circle blue">Q</div>
+                        <div class="step-body">
+                            <strong>Why can't 802.11 use CSMA/CD?</strong>
+                            <p>Two reasons: (1) Transmitted signal overwhelms received signal at own antenna. (2) Hidden
+                                terminal problem — not all collisions are detectable by the transmitter anyway.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle cyan">Q</div>
+                        <div class="step-body">
+                            <strong>What is the backoff duration for a station on its 2nd attempt with r=5 in
+                                802.11a?</strong>
+                            <p>CW = min(2^(2-1) × 16 − 1, 1024) = min(31, 1024) = 31. r=5 is valid (5 ≤ 31). Backoff = 5
+                                × 9µs = 45 µs.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle violet">Q</div>
+                        <div class="step-body">
+                            <strong>Which 802.11 standard introduced MU-MIMO?</strong>
+                            <p>802.11ac (Wave 2). 802.11n introduced SU-MIMO (Single-User MIMO).</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle emerald">Q</div>
+                        <div class="step-body">
+                            <strong>Can Station C set its NAV from an RTS if C is hidden from the RTS
+                                transmitter?</strong>
+                            <p>No — C cannot receive the RTS because it's hidden (out of range). C WILL set its NAV from
+                                the CTS, because C is in range of the receiver who sends the CTS.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle amber">Q</div>
+                        <div class="step-body">
+                            <strong>After a successful frame exchange, what CW does a station use for the next
+                                backoff?</strong>
+                            <p>CWmin − 1 = 15 (for 802.11a). The CW resets to the minimum after every successful
+                                delivery.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle lime">Q</div>
+                        <div class="step-body">
+                            <strong>What is the PIFS in 802.11a?</strong>
+                            <p>PIFS = SIFS + aSlotTime = 16 + 9 = 25 µs.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle rose">Q</div>
+                        <div class="step-body">
+                            <strong>Are IFS values rate-dependent or rate-independent?</strong>
+                            <p>Rate-INDEPENDENT. All interframe spaces (SIFS, PIFS, DIFS, EIFS) are independent of the
+                                channel data rate. They are fixed time values determined by PHY layer processing delays,
+                                not by how fast data is transmitted.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="prof-corner"
+                style="border-left-color:var(--accent-violet);background:linear-gradient(135deg,rgba(183,148,244,0.07),rgba(99,179,237,0.04));">
+                <div class="pc-header" style="color:var(--accent-violet);">🏆 FINAL Boss: The Graph-to-Math Problem
+                </div>
+                <p style="margin-bottom:12px;">Your professor extracts math questions from tiny graph details. Here is
+                    the most likely style of question based on the backoff diagrams:</p>
+                <div class="trap-q">Given: 802.11a, CWmin=16, CWmax=1024, aSlotTime=9µs, DIFS=34µs. Station X is on its
+                    4th transmission attempt. It randomly selects r=12. (a) What is CW for this attempt? (b) What is the
+                    backoff duration? (c) If the channel goes busy after 5 slots of countdown, how many slots remain
+                    when the channel becomes idle again?<br><br>ANSWER: (a) CW = min(2^(4-1)×16−1, 1024) = min(8×16−1,
+                    1024) = min(127, 1024) = 127. (b) Backoff = 12×9µs = 108 µs. (c) Remaining = 12−5 = 7 slots. Station
+                    freezes at 7 and resumes from 7 after next DIFS.</div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ═══════════════════════════════════════════ JS ═══════════════════════════════════════════ -->
+    <script>
+        // Active sidebar highlight
+        const sections = document.querySelectorAll('.sec');
+        const links = document.querySelectorAll('.sb-link');
+
+        function updateActive() {
+            let current = '';
+            sections.forEach(sec => {
+                const rect = sec.getBoundingClientRect();
+                if (rect.top <= 100) current = sec.id;
+            });
+            links.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        document.getElementById('main').addEventListener('scroll', updateActive);
+        window.addEventListener('scroll', updateActive);
+        document.addEventListener('DOMContentLoaded', updateActive);
+
+        // Smooth link click
+        links.forEach(link => {
+            link.addEventListener('click', function (e) {
+                // Close sidebar on mobile after click
+                if (window.innerWidth <= 768) {
+                    document.getElementById('sidebar').classList.remove('open');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
